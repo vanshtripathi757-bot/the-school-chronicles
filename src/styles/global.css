@@ -141,3 +141,30 @@
  .main-menu{max-width:340px;gap:5px}
  .menu-button{min-height:clamp(34px,6vh,44px);padding:7px 13px}
 }
+
+/* Generated title-screen artwork: the artwork is the menu, not a CSS imitation. */
+.generated-menu{display:block!important;position:relative;isolation:isolate;width:100%;height:100svh;min-height:100svh;overflow:hidden;padding:0!important;background:#090b1b!important}
+.generated-menu .menu-art{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:fill;user-select:none;pointer-events:none}
+.generated-menu .menu-hotspots{position:absolute;inset:0;z-index:3}
+.generated-menu .hotspot{position:absolute;display:block;padding:0;margin:0;border:0;border-radius:10px;background:transparent;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.generated-menu .hotspot:focus-visible{outline:2px solid #f6d5ff;outline-offset:3px;background:rgba(218,145,255,.13)}
+.generated-menu .hotspot:active{background:rgba(218,145,255,.18)}
+.generated-menu .profile-hotspot{left:81.7%;top:2.8%;width:4.1%;height:7.5%}
+.generated-menu .trophy-hotspot{left:87.1%;top:2.8%;width:4.1%;height:7.5%}
+.generated-menu .settings-hotspot{left:92.4%;top:2.8%;width:4.1%;height:7.5%}
+.generated-menu .newgame-hotspot{left:73.1%;top:33.5%;width:24.5%;height:8.1%}
+.generated-menu .continue-hotspot{left:73.1%;top:42.5%;width:24.5%;height:8.1%}
+.generated-menu .load-hotspot{left:73.1%;top:50.7%;width:24.5%;height:8.1%}
+.generated-menu .menu-settings-hotspot{left:73.1%;top:59.0%;width:24.5%;height:8.1%}
+.generated-menu .credits-hotspot{left:73.1%;top:67.3%;width:24.5%;height:8.1%}
+.generated-menu .quit-hotspot{left:73.1%;top:75.7%;width:24.5%;height:8.1%}
+.generated-menu .menu-notice{position:absolute;z-index:5;left:50%;bottom:8%;transform:translateX(-50%);max-width:min(90%,520px);display:flex;align-items:center;gap:16px;padding:12px 18px;border:1px solid #d8a8ef;background:rgba(12,10,29,.94);color:#fff;font:14px 'DM Sans',sans-serif;box-shadow:0 8px 32px #0009}
+.generated-menu .menu-notice button{border:0;background:transparent;color:#fff;font-size:22px}
+@media(orientation:portrait) and (max-width:900px){
+ .generated-menu .menu-art,.generated-menu .menu-hotspots,.generated-menu .menu-notice{display:none!important}
+ .generated-menu .rotate-prompt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;background:radial-gradient(ellipse at center,#28213b,#090c18 72%);color:#f5edf7}
+ .generated-menu .rotate-symbol{font-size:70px;line-height:1;color:#d9a9f6;transform:rotate(-90deg);margin-bottom:24px;text-shadow:0 0 30px #b36ae6}
+ .generated-menu .rotate-prompt p{font-size:11px;letter-spacing:.3em;color:#d7b6eb}
+ .generated-menu .rotate-prompt h2{font:600 clamp(25px,7vw,38px) 'Playfair Display',Georgia,serif;max-width:340px;margin:12px 0}
+ .generated-menu .rotate-prompt span{font-size:10px;letter-spacing:.16em;color:#c9bdcf;line-height:1.7}
+}
