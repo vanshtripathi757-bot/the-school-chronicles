@@ -31,7 +31,7 @@ export default function App() {
   return (
     <main className="app-shell">
       {screen === "menu" && <section className="menu-screen generated-menu">
-        <img className="menu-art" src="/images/academy-main-menu.webp" alt="The School Chronicles anime academy at sunset" />
+        <img className="menu-art" src="/images/academy-menu.jpg" alt="The School Chronicles anime academy at sunset" />
         <div className="menu-hotspots" aria-label="Main menu">
           <button className="hotspot profile-hotspot" aria-label="Profile" onClick={() => setNotice("Player profile will be available with character creation.")} />
           <button className="hotspot trophy-hotspot" aria-label="Achievements" onClick={() => setNotice("Academy achievements will unlock during gameplay.")} />
