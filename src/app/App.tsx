@@ -33,9 +33,9 @@ export default function App() {
       {screen === "menu" && <section className="menu-screen">
         <div className="menu-atmosphere" aria-hidden="true" />
         <div className="menu-title-block">
-          <p className="menu-crest">✦  THE ACADEMY  ✦</p>
+          <p className="menu-crest">♜ &nbsp; THE ACADEMY &nbsp; ♜</p>
           <h1>THE SCHOOL<br/><span>CHRONICLES</span></h1>
-          <p className="tagline">AN ELITE ACADEMY STORY</p>
+          <p className="tagline">AN ELITE ACADEMY STORY</p><div className="title-divider"><span /></div>
         </div>
         <nav className="main-menu" aria-label="Main menu">
           <button className="menu-button primary" onClick={startNewGame}><span className="menu-arrow">▶</span> NEW GAME</button>
