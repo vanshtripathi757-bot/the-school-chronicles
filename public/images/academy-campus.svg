@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="An elite academy at sunset beneath cherry blossoms">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#18274a"/><stop offset=".42" stop-color="#765879"/><stop offset=".72" stop-color="#f29a79"/><stop offset="1" stop-color="#25334c"/></linearGradient>
+ <linearGradient id="sun" x2="0" y2="1"><stop stop-color="#fff2c7"/><stop offset="1" stop-color="#f49b72"/></linearGradient>
+ <linearGradient id="stone" x2="0" y2="1"><stop stop-color="#62647b"/><stop offset="1" stop-color="#171d31"/></linearGradient>
+ <linearGradient id="castle" x2="0" y2="1"><stop stop-color="#77758b"/><stop offset=".45" stop-color="#3d435c"/><stop offset="1" stop-color="#20283f"/></linearGradient>
+ <linearGradient id="glass" x2="0" y2="1"><stop stop-color="#ffe9b0"/><stop offset="1" stop-color="#d98969"/></linearGradient>
+ <linearGradient id="uniform" x2="1" y2="1"><stop stop-color="#24283c"/><stop offset="1" stop-color="#080d1b"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#ffdda0" stop-opacity=".85"/><stop offset="1" stop-color="#ffdda0" stop-opacity="0"/></radialGradient>
+ <filter id="blur"><feGaussianBlur stdDeviation="35"/></filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="8"/></filter>
+</defs>
+<rect width="1600" height="900" fill="url(#sky)"/>
+<circle cx="510" cy="485" r="220" fill="url(#glow)" filter="url(#blur)"/>
+<circle cx="510" cy="485" r="62" fill="url(#sun)"/>
+<path d="M0 490 150 360 260 420 380 300 520 430 660 330 790 440 940 340 1100 445 1260 315 1420 410 1600 300V690H0Z" fill="#29334d" opacity=".58"/>
+<path d="M0 575 180 440 300 510 460 390 610 515 770 400 910 530 1080 410 1240 510 1410 380 1600 510V760H0Z" fill="#30334b" opacity=".65"/>
+<!-- distant campus hill -->
+<path d="M360 640 610 525 850 535 1080 465 1340 510 1600 590V820H300Z" fill="#222b40"/>
+<!-- academy main building -->
+<path d="M650 650V430L710 390V335L755 390V310L800 360V285L845 360V315L890 370V330L935 390V350L980 400V430L1040 455V675Z" fill="url(#castle)" stroke="#b0a0a0" stroke-opacity=".45" stroke-width="4"/>
+<path d="M600 650V480L680 445V415L725 445V405L770 440V410L815 445V390L860 445V410L905 450V420L950 465V430L1005 470V650Z" fill="#44475f" stroke="#a99aa0" stroke-opacity=".4" stroke-width="3"/>
+<path d="M1015 665V420L1080 375V330L1120 375V275L1165 340V240L1210 325V275L1255 345V300L1300 365V340L1345 390V430L1410 465V690Z" fill="url(#castle)" stroke="#c3a8a3" stroke-opacity=".55" stroke-width="4"/>
+<path d="M1145 340 1165 150 1188 340M1200 325 1210 90 1230 325M1260 345 1278 185 1298 345M790 360 800 205 820 360" fill="#31354c" stroke="#bba8a6" stroke-width="5"/>
+<g fill="url(#glass)" stroke="#272d43" stroke-width="7">
+ <path d="M720 480q24-44 48 0v82h-48z"/><path d="M800 455q24-44 48 0v92h-48z"/><path d="M880 475q24-44 48 0v82h-48z"/>
+ <path d="M1060 465q27-52 54 0v100h-54z"/><path d="M1150 410q27-52 54 0v112h-54z"/><path d="M1240 425q27-52 54 0v112h-54z"/><path d="M1330 470q27-52 54 0v100h-54z"/>
+</g>
+<g stroke="#d9b89b" stroke-width="5" opacity=".7"><path d="M744 480v82m-24-40h48M824 455v92m-24-45h48M904 475v82m-24-40h48M1087 465v100m-27-50h54M1177 410v112m-27-56h54M1267 425v112m-27-56h54M1357 470v100m-27-50h54"/></g>
+<!-- flags -->
+<g><path d="M965 455v180m0-175 75 20-75 45" fill="#272440" stroke="#d3a56e" stroke-width="3"/><path d="M965 455 1040 475 965 520Z" fill="#a78ac5"/><path d="M1388 440v190m0-185 72 18-72 43" fill="#272440" stroke="#d3a56e" stroke-width="3"/><path d="M1388 445 1460 463 1388 506Z" fill="#a78ac5"/></g>
+<!-- stairs and courtyard -->
+<path d="M900 630 1260 630 1490 900H700Z" fill="url(#stone)"/>
+<g stroke="#c5b0a4" stroke-opacity=".35" stroke-width="5"><path d="M900 650h440M880 690h500M850 735h560M810 785h640M760 845h730"/></g>
+<path d="M1080 620 1150 620 1265 900H965Z" fill="#b7a9a8" opacity=".25"/>
+<!-- trees -->
+<g fill="#1c2937"><path d="M80 700 140 340 200 700Z"/><path d="M210 700 270 405 320 700Z"/><path d="M1490 700 1540 330 1595 700Z"/></g>
+<g fill="#202c3e"><circle cx="115" cy="340" r="100"/><circle cx="205" cy="300" r="100"/><circle cx="285" cy="380" r="105"/><circle cx="1490" cy="310" r="130"/><circle cx="1580" cy="390" r="120"/></g>
+<!-- cherry blossom canopy -->
+<g fill="#f2a9c9" opacity=".88"><circle cx="40" cy="90" r="72"/><circle cx="135" cy="55" r="76"/><circle cx="230" cy="95" r="58"/><circle cx="310" cy="35" r="65"/><circle cx="70" cy="190" r="58"/><circle cx="210" cy="175" r="70"/><circle cx="330" cy="145" r="48"/><circle cx="1460" cy="80" r="55"/><circle cx="1540" cy="150" r="85"/></g>
+<g fill="#ffd5e3" opacity=".8"><circle cx="40" cy="75" r="24"/><circle cx="150" cy="35" r="22"/><circle cx="235" cy="80" r="19"/><circle cx="300" cy="25" r="21"/><circle cx="90" cy="180" r="20"/><circle cx="215" cy="160" r="23"/><circle cx="1490" cy="60" r="19"/></g>
+<path d="M0 0Q160 65 260 0M0 75Q180 145 340 35M1340 0Q1490 90 1600 45" fill="none" stroke="#35263c" stroke-width="20"/>
+<!-- lamps -->
+<g fill="#f6c58c"><circle cx="590" cy="730" r="9"/><circle cx="1440" cy="735" r="10"/><circle cx="380" cy="780" r="8"/></g>
+<g stroke="#252638" stroke-width="10"><path d="M590 730v120M1440 735v130M380 780v100"/></g>
+<!-- foreground silhouette student -->
+<path d="M80 900 105 700Q130 620 205 600L275 620Q340 670 365 900Z" fill="url(#uniform)"/>
+<path d="M130 675Q105 580 155 520Q205 465 265 520Q310 565 285 650L260 700 150 700Z" fill="#171b2b"/>
+<path d="M150 690 190 780 260 690 300 900H80Z" fill="#20253a"/>
+<path d="M175 620 220 680 260 625 275 900H155Z" fill="#333047"/>
+<path d="M165 510Q210 460 270 515Q300 555 275 590Q245 625 175 595Q135 570 165 510Z" fill="#161a2a"/>
+<path d="M170 515Q205 465 255 505" fill="none" stroke="#4a354d" stroke-width="18"/>
+<path d="M150 690 105 735 60 900H145L205 770M280 690 340 760 390 900H300L250 780" fill="#101626" stroke="#4a3d55" stroke-width="8"/>
+<path d="M180 665 215 705 250 665" fill="none" stroke="#a35e78" stroke-width="8"/>
+<!-- foreground paving -->
+<path d="M0 850Q420 790 800 845T1600 825V900H0Z" fill="#111a2a" opacity=".85"/>
+<g fill="#f8c2d9" opacity=".8"><ellipse cx="430" cy="210" rx="9" ry="4" transform="rotate(25 430 210)"/><ellipse cx="560" cy="330" rx="10" ry="4" transform="rotate(-35 560 330)"/><ellipse cx="1040" cy="260" rx="8" ry="4" transform="rotate(45 1040 260)"/><ellipse cx="1500" cy="530" rx="10" ry="4" transform="rotate(-20 1500 530)"/></g>
+<rect width="1600" height="900" fill="none" stroke="#090d19" stroke-width="38" opacity=".45"/>
+</svg>
