@@ -168,3 +168,17 @@
  .generated-menu .rotate-prompt h2{font:600 clamp(25px,7vw,38px) 'Playfair Display',Georgia,serif;max-width:340px;margin:12px 0}
  .generated-menu .rotate-prompt span{font-size:10px;letter-spacing:.16em;color:#c9bdcf;line-height:1.7}
 }
+
+
+/* Visible, interactive emergency title screen if the uploaded image cannot load. */
+.generated-menu .fallback-menu-ui{position:absolute;inset:0;z-index:4;display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,30vw);align-items:center;gap:24px;padding:clamp(20px,5vw,70px);background:radial-gradient(ellipse at 28% 45%,rgba(104,74,132,.55),transparent 42%),linear-gradient(125deg,#11182d,#21182d 60%,#090d1b);color:#fff}
+.generated-menu .fallback-menu-title{justify-self:center;text-align:center;text-shadow:0 4px 28px #000}
+.generated-menu .fallback-menu-title p{font-size:clamp(9px,1vw,14px);letter-spacing:.38em;color:#eac7e8}
+.generated-menu .fallback-menu-title h1{font:600 clamp(40px,6vw,88px)/.95 'Playfair Display',Georgia,serif;letter-spacing:.03em;margin:18px 0;color:#fff0df}
+.generated-menu .fallback-menu-title span{font-size:10px;letter-spacing:.28em;color:#e8cce7}
+.generated-menu .fallback-menu-buttons{display:grid;gap:9px;width:100%;max-width:360px;justify-self:end}
+.generated-menu .fallback-menu-buttons button{min-height:48px;padding:12px 18px;border:1px solid #d9b9e5a8;background:linear-gradient(90deg,#37284f,#17172a);color:#fff;font:500 13px 'Playfair Display',Georgia,serif;letter-spacing:.18em;text-align:left}
+.generated-menu .fallback-menu-buttons button:first-child{background:linear-gradient(90deg,#8955a9,#4a3168);border-color:#f2d4ff}
+.generated-menu .fallback-menu-buttons button:focus-visible,.generated-menu .fallback-menu-buttons button:hover{outline:2px solid #edc8ff;outline-offset:2px;background:#69477f}
+@media(orientation:portrait) and (max-width:900px){.generated-menu .fallback-menu-ui{display:none}}
+@media(orientation:landscape) and (max-height:560px){.generated-menu .fallback-menu-ui{padding:14px 4vw;grid-template-columns:minmax(0,1fr) minmax(230px,32vw)}.generated-menu .fallback-menu-title h1{font-size:clamp(32px,5vw,58px)}.generated-menu .fallback-menu-buttons{gap:5px}.generated-menu .fallback-menu-buttons button{min-height:36px;padding:7px 13px;font-size:11px}}
