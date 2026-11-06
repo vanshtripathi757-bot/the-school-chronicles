@@ -10,6 +10,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>("menu");
   const [settings, setSettings] = useState<GameSettings>(loadSettings);
   const [notice, setNotice] = useState("");
+  const [imageFailed, setImageFailed] = useState(false);
   const gameHost = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
 
@@ -31,7 +32,19 @@ export default function App() {
   return (
     <main className="app-shell">
       {screen === "menu" && <section className="menu-screen generated-menu">
-        <img className="menu-art" src="/images/academy-menu.jpg" alt="The School Chronicles anime academy at sunset" />
+        <img className="menu-art" src="/images/academy-menu.jpg" alt="The School Chronicles anime academy at sunset" onError={(event) => { setImageFailed(true); event.currentTarget.onerror = null; event.currentTarget.src = "/images/academy-campus.svg"; }} />
+        {imageFailed && <div className="fallback-menu-ui">
+          <div className="fallback-menu-title"><p>AN ELITE ACADEMY STORY</p><h1>THE SCHOOL<br/>CHRONICLES</h1><span>YOUR STORY BEGINS HERE</span></div>
+          <nav className="fallback-menu-buttons" aria-label="Main menu">
+            <button onClick={startNewGame}>NEW GAME</button>
+            <button onClick={() => hasSave() ? setScreen("game") : setNotice("No saved game found yet. Start a New Game to begin.")}>CONTINUE</button>
+            <button onClick={() => setScreen("load")}>LOAD GAME</button>
+            <button onClick={() => setScreen("settings")}>SETTINGS</button>
+            <button onClick={() => setScreen("credits")}>CREDITS</button>
+            <button onClick={() => setNotice("You can close this browser tab to leave the game.")}>QUIT</button>
+          </nav>
+        </div>}
+        {!imageFailed && <div className="menu-hotspots" aria-label="Main menu">
         <div className="menu-hotspots" aria-label="Main menu">
           <button className="hotspot profile-hotspot" aria-label="Profile" onClick={() => setNotice("Player profile will be available with character creation.")} />
           <button className="hotspot trophy-hotspot" aria-label="Achievements" onClick={() => setNotice("Academy achievements will unlock during gameplay.")} />
@@ -42,7 +55,7 @@ export default function App() {
           <button className="hotspot menu-settings-hotspot" aria-label="Settings" onClick={() => setScreen("settings")} />
           <button className="hotspot credits-hotspot" aria-label="Credits" onClick={() => setScreen("credits")} />
           <button className="hotspot quit-hotspot" aria-label="Quit" onClick={() => setNotice("You can close this browser tab to leave the game.")} />
-        </div>
+        </div>}
         {notice && <div className="menu-notice" role="status"><span>{notice}</span><button onClick={() => setNotice("")} aria-label="Dismiss">×</button></div>}
         <div className="rotate-prompt" aria-live="polite">
           <div className="rotate-symbol">▱</div><p>THE SCHOOL CHRONICLES</p>
