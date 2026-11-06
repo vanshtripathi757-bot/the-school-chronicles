@@ -38,11 +38,11 @@ export default function App() {
           <p className="tagline">AN ELITE ACADEMY STORY</p><div className="title-divider"><span /></div>
         </div>
         <nav className="main-menu" aria-label="Main menu">
-          <button className="menu-button primary" onClick={startNewGame}><span className="menu-arrow">▶</span> NEW GAME</button>
-          <button className="menu-button" onClick={() => hasSave() ? setScreen("game") : setNotice("No saved game found yet. Start a New Game to begin.")}>CONTINUE</button>
-          <button className="menu-button" onClick={() => setScreen("load")}>LOAD GAME</button>
-          <button className="menu-button" onClick={() => setScreen("settings")}>SETTINGS</button>
-          <button className="menu-button" onClick={() => setScreen("credits")}>CREDITS</button>
+          <button className="menu-button primary" onClick={startNewGame}><span className="menu-arrow">✦</span> NEW GAME</button>
+          <button className="menu-button" onClick={() => hasSave() ? setScreen("game") : setNotice("No saved game found yet. Start a New Game to begin.")}><span className="menu-arrow">▣</span> CONTINUE</button>
+          <button className="menu-button" onClick={() => setScreen("load")}><span className="menu-arrow">▰</span> LOAD GAME</button>
+          <button className="menu-button" onClick={() => setScreen("settings")}><span className="menu-arrow">⚙</span> SETTINGS</button>
+          <button className="menu-button" onClick={() => setScreen("credits")}><span className="menu-arrow">♟</span> CREDITS</button>
           {notice && <p className="notice" role="status">{notice}</p>}
         </nav>
         <div className="menu-footer"><span>EST. 2026</span><span>V. 0.1.0</span></div>
