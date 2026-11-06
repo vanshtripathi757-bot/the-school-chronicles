@@ -31,21 +31,21 @@ export default function App() {
   return (
     <main className="app-shell">
       {screen === "menu" && <section className="menu-screen">
-        <div className="menu-atmosphere" />
-        <div className="menu-content">
-          <p className="eyebrow">AN ELITE ACADEMY AWAITS</p>
+        <div className="menu-atmosphere" aria-hidden="true" />
+        <div className="menu-title-block">
+          <p className="menu-crest">✦  THE ACADEMY  ✦</p>
           <h1>THE SCHOOL<br/><span>CHRONICLES</span></h1>
-          <p className="tagline">YOUR STORY BEGINS HERE</p>
-          <nav className="main-menu" aria-label="Main menu">
-            <button className="menu-button primary" onClick={startNewGame}>NEW GAME <span>↗</span></button>
-            <button className="menu-button" onClick={() => hasSave() ? setScreen("game") : setNotice("No saved game found yet. Start a New Game to begin.")}>CONTINUE</button>
-            <button className="menu-button" onClick={() => setScreen("load")}>LOAD GAME</button>
-            <button className="menu-button" onClick={() => setScreen("settings")}>SETTINGS</button>
-            <button className="menu-button" onClick={() => setScreen("credits")}>CREDITS</button>
-          </nav>
-          {notice && <p className="notice" role="status">{notice}</p>}
+          <p className="tagline">AN ELITE ACADEMY STORY</p>
         </div>
-        <div className="menu-footer"><span>EST. 2026</span><span>AN ORIGINAL SCHOOL-LIFE RPG</span><span>V. 0.1.0</span></div>
+        <nav className="main-menu" aria-label="Main menu">
+          <button className="menu-button primary" onClick={startNewGame}><span className="menu-arrow">▶</span> NEW GAME</button>
+          <button className="menu-button" onClick={() => hasSave() ? setScreen("game") : setNotice("No saved game found yet. Start a New Game to begin.")}>CONTINUE</button>
+          <button className="menu-button" onClick={() => setScreen("load")}>LOAD GAME</button>
+          <button className="menu-button" onClick={() => setScreen("settings")}>SETTINGS</button>
+          <button className="menu-button" onClick={() => setScreen("credits")}>CREDITS</button>
+          {notice && <p className="notice" role="status">{notice}</p>}
+        </nav>
+        <div className="menu-footer"><span>EST. 2026</span><span>V. 0.1.0</span></div>
       </section>}
 
       {screen === "game" && <section className="game-screen">
