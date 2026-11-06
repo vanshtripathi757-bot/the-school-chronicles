@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import type Phaser from "phaser";
-import { createGame } from "../game/Game";
 import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "../storage/settings";
 
 type Screen = "menu" | "game" | "settings" | "credits" | "load";
@@ -16,9 +15,26 @@ export default function App() {
 
   useEffect(() => {
     if (screen !== "game" || !gameHost.current || gameRef.current) return;
-    const game = createGame(gameHost.current);
-    gameRef.current = game;
-    return () => { game.destroy(true); gameRef.current = null; };
+    let cancelled = false;
+    let createdGame: Phaser.Game | null = null;
+    import("../game/Game")
+      .then(({ createGame }) => {
+        if (cancelled || !gameHost.current || gameRef.current) return;
+        createdGame = createGame(gameHost.current);
+        gameRef.current = createdGame;
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        setNotice("Game engine failed to start: " + message);
+        setScreen("menu");
+      });
+    return () => {
+      cancelled = true;
+      if (createdGame) {
+        createdGame.destroy(true);
+        if (gameRef.current === createdGame) gameRef.current = null;
+      }
+    };
   }, [screen]);
 
   const updateSettings = (next: GameSettings) => {
