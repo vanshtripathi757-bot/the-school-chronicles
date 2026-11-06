@@ -45,7 +45,6 @@ export default function App() {
           </nav>
         </div>}
         {!imageFailed && <div className="menu-hotspots" aria-label="Main menu">
-        <div className="menu-hotspots" aria-label="Main menu">
           <button className="hotspot profile-hotspot" aria-label="Profile" onClick={() => setNotice("Player profile will be available with character creation.")} />
           <button className="hotspot trophy-hotspot" aria-label="Achievements" onClick={() => setNotice("Academy achievements will unlock during gameplay.")} />
           <button className="hotspot settings-hotspot" aria-label="Settings" onClick={() => setScreen("settings")} />
