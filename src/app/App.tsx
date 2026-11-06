@@ -31,11 +31,17 @@ export default function App() {
   return (
     <main className="app-shell">
       {screen === "menu" && <section className="menu-screen">
-        <div className="menu-atmosphere" aria-hidden="true" />
+        <div className="menu-shade" aria-hidden="true" />
         <div className="menu-title-block">
-          <p className="menu-crest">♜ &nbsp; THE ACADEMY &nbsp; ♜</p>
+          <p className="menu-crest">♧  THE ACADEMY  ♧</p>
           <h1>THE SCHOOL<br/><span>CHRONICLES</span></h1>
-          <p className="tagline">AN ELITE ACADEMY STORY</p><div className="title-divider"><span /></div>
+          <p className="tagline">AN ELITE ACADEMY STORY</p>
+          <div className="title-divider"><span /></div>
+        </div>
+        <div className="menu-utility" aria-label="Game shortcuts">
+          <button aria-label="Profile" onClick={() => setNotice("Player profile will be available with character creation.")}>♙</button>
+          <button aria-label="Achievements" onClick={() => setNotice("Academy achievements will unlock during gameplay.")}>🏆</button>
+          <button aria-label="Settings" onClick={() => setScreen("settings")}>⚙</button>
         </div>
         <nav className="main-menu" aria-label="Main menu">
           <button className="menu-button primary" onClick={startNewGame}><span className="menu-arrow">✦</span> NEW GAME</button>
@@ -43,9 +49,16 @@ export default function App() {
           <button className="menu-button" onClick={() => setScreen("load")}><span className="menu-arrow">▰</span> LOAD GAME</button>
           <button className="menu-button" onClick={() => setScreen("settings")}><span className="menu-arrow">⚙</span> SETTINGS</button>
           <button className="menu-button" onClick={() => setScreen("credits")}><span className="menu-arrow">♟</span> CREDITS</button>
+          <button className="menu-button" onClick={() => setNotice("You can close this browser tab to leave the game.")}><span className="menu-arrow">⏻</span> QUIT</button>
           {notice && <p className="notice" role="status">{notice}</p>}
         </nav>
-        <div className="menu-footer"><span>EST. 2026</span><span>V. 0.1.0</span></div>
+        <div className="menu-footer"><span>V. 0.1.0&nbsp; | &nbsp;ALPHA BUILD</span><span>EST. 2026</span></div>
+        <div className="rotate-prompt" aria-live="polite">
+          <div className="rotate-symbol">▱</div>
+          <p>THE SCHOOL CHRONICLES</p>
+          <h2>PLEASE ROTATE YOUR DEVICE</h2>
+          <span>THIS GAME IS DESIGNED FOR LANDSCAPE MODE</span>
+        </div>
       </section>}
 
       {screen === "game" && <section className="game-screen">
