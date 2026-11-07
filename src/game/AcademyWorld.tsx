@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
+import { KeyboardControls } from "@react-three/drei";
 import { Float, Text, useKeyboardControls } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -100,13 +101,9 @@ function World({ onInteract }: { onInteract:(label:string)=>void }) {
 }
 
 export function AcademyWorld({ onInteract }: { onInteract:(label:string)=>void }) {
-  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:100}}>
-    <KeyboardWrapper><World onInteract={onInteract}/></KeyboardWrapper>
-  </Canvas>;
-}
-
-function KeyboardWrapper({children}:{children:React.ReactNode}) {
-  return <>{children}</>;
+  return <KeyboardControls map={controlMap}><Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:100}}>
+    <World onInteract={onInteract}/>
+  </Canvas></KeyboardControls>;
 }
 
 export { controlMap };
