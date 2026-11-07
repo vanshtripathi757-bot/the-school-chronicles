@@ -76,10 +76,10 @@ function AcademyBuilding({ position, label, color = "#d8d0c4" }: { position: [nu
       </group>)}
     </group>}
     {isArts && <group position={[0,4.1,3.05]}>
-      {[-2.5,0,2.5].map((x,i)=><group key={x} position={[x,0,0}>
+      {[-2.5,0,2.5].map((x,i) => (<group key={x} position={[x,0,0]}>
         <mesh><boxGeometry args={[1.35,.85,.08]}/><meshStandardMaterial color={["#9c6685","#527f83","#b48b58"][i]}/></mesh>
         <mesh position={[0,-.62,.02]} rotation={[0,0,Math.PI]}><coneGeometry args={[.68,.65,3]}/><meshStandardMaterial color={["#9c6685","#527f83","#b48b58"][i]}/></mesh>
-      </group>)}
+      </group>))}
     </group>}
   </group>;
 }
