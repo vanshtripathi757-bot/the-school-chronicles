@@ -44,11 +44,11 @@ export default function StoryDirectorPanel({ experience, completedMissions, onRe
   const available = state.items.filter(item => !item.completed && experience >= item.unlockAtXp);
   const current = available[0];
   const nextLocked = state.items.find(item => !item.completed && experience < item.unlockAtXp);
-  const complete = (item: StoryPack, answered: boolean) => {
+  const complete = (item: StoryPack, correct: boolean, answered = false) => {
     const next = { ...state, items: state.items.map(entry => entry.id === item.id ? { ...entry, completed: true, answered } : entry) };
     setState(next); saveStoryDirector(next); setSelection(null);
-    onReward(answered ? 25 : 20);
-    setMessage(answered ? "Correct answer recorded. Your story has progressed." : "Story event completed. New progress saved.");
+    onReward(answered ? (correct ? 25 : 10) : 20);
+    setMessage(answered ? (correct ? "Correct answer recorded. Your story has progressed." : "Answer recorded. Review the explanation and keep learning.") : "Story event completed. New progress saved.");
   };
 
   return <aside className="story-director-card" aria-label="AI Story Director">
@@ -60,7 +60,7 @@ export default function StoryDirectorPanel({ experience, completedMissions, onRe
       <strong className="story-question">{current.question}</strong>
       <div className="story-options">{current.options.map((option,index)=><button key={index} className={selection===index?"selected":""} onClick={()=>setSelection(index)}>{String.fromCharCode(65+index)}. {option}</button>)}</div>
       {selection!==null && <div className="story-feedback">{selection===current.correctOption ? "Correct. " : "Not quite. "}{current.explanation}<button onClick={()=>complete(current,selection===current.correctOption)}>SUBMIT ANSWER</button></div>}
-      <button className="story-complete" onClick={()=>complete(current,false)}>COMPLETE STORY SCENE</button>
+      {(current.kind==="adventure" || current.kind==="event") && <button className="story-complete" onClick={()=>complete(current,true,false)}>COMPLETE STORY SCENE</button>}
     </> : nextLocked ? <><h3>{nextLocked.title}</h3><p>{nextLocked.summary}</p><div className="story-lock">LOCKED · UNLOCKS AT {nextLocked.unlockAtXp} XP</div></> :
       <><h3>Your next adventure is being prepared</h3><p>New quizzes, tests, school events and story missions arrive gradually. Complete activities to unlock them.</p></>}
     {message && <p className="story-director-message" role="status">{message}</p>}
