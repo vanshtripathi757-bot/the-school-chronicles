@@ -98,3 +98,27 @@
 .mini-map.is-collapsed .mini-map-heading{padding:0}
 @media(max-width:760px){.mini-map{top:64px;right:12px;width:142px}.mini-map.is-collapsed{width:126px}.mission-card{top:188px}}
 @media(max-height:700px) and (max-width:760px){.mini-map{top:58px}.mission-card{top:174px}}
+
+
+/* Gemini Story Director */
+.story-director-card{position:absolute;left:24px;bottom:82px;z-index:16;width:min(340px,calc(100vw - 48px));max-height:44vh;overflow:auto;padding:13px 14px;border:1px solid #b99bc566;border-radius:10px;background:#111323ef;backdrop-filter:blur(12px);box-shadow:0 10px 30px #0006;color:#f4edf7}
+.story-director-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:9px;border-bottom:1px solid #ffffff20}
+.story-director-top div{display:grid;gap:4px}
+.story-director-top small,.story-kind{font-size:8px;letter-spacing:.14em;color:#d9b5ec}
+.story-director-top strong{font-size:12px;letter-spacing:.04em}
+.story-director-top>span{font-size:7px;letter-spacing:.12em;color:#a8d3b3}
+.story-director-card h3{margin:7px 0 5px;font-size:14px;color:#fff}
+.story-director-card p{margin:5px 0 8px;font-size:10px;line-height:1.5;color:#d6ccdc}
+.story-director-card>small:not(.story-kind){font-size:8px;color:#bcaec8;letter-spacing:.08em}
+.story-question{display:block;margin:9px 0 7px;font-size:10px;color:#f2d7a8}
+.story-options{display:grid;gap:5px}
+.story-options button,.story-feedback button,.story-complete,.story-generate{padding:7px 9px;border:1px solid #b99bc555;border-radius:6px;background:#25243a;color:#f4edf7;text-align:left;font-size:9px;cursor:pointer}
+.story-options button.selected{border-color:#e6bd7b;background:#42344a}
+.story-feedback{margin-top:8px;padding:8px;border-radius:6px;background:#29243a;font-size:9px;line-height:1.5;color:#eadbbf}
+.story-feedback button{display:block;margin-top:7px;background:#604b72}
+.story-complete{margin-top:7px;width:100%;text-align:center}
+.story-lock{padding:7px;border:1px dashed #a78db8;border-radius:5px;color:#e8c58f;font-size:8px;letter-spacing:.1em}
+.story-director-message{color:#b9d9c1!important;font-size:9px!important}
+.story-generate{margin-top:8px;width:100%;text-align:center;background:#473456;border-color:#d1a8e5}
+.story-generate:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:760px){.story-director-card{left:10px;bottom:92px;width:min(280px,calc(100vw - 20px));max-height:33vh;padding:9px 10px}.story-director-card h3{font-size:12px}.story-director-card p{font-size:9px}}
