@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AcademyWorld } from "../game/AcademyWorld";
+import VirtualJoystick from "../components/ui/VirtualJoystick";
 import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "../storage/settings";
 
 type Screen = "menu" | "game" | "settings" | "credits" | "load";
@@ -10,7 +11,6 @@ export default function App() {
   const [interaction,setInteraction]=useState("");
   const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
   const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");};
-  const pressKey=(code:string,down:boolean)=>window.dispatchEvent(new KeyboardEvent(down?"keydown":"keyup",{code,bubbles:true}));
   return <main className="game-root">
     {(screen==="menu"||screen==="game")&&<div className="world-layer"><AcademyWorld onInteract={setInteraction}/></div>}
     {screen==="menu"&&<section className="title-screen">
@@ -32,7 +32,7 @@ export default function App() {
       <div className="objective"><small>YOUR FIRST DAY</small><strong>Explore the academy</strong><span>Walk around and discover the campus.</span></div>
       {interaction&&<div className="interaction-card"><small>YOU DISCOVERED</small><strong>{interaction}</strong><p>{interaction==="LIBRARY"?"A quiet place filled with books and stories.":interaction==="CLASSROOMS"?"The heart of academy life. Classes begin here.":"A peaceful fountain in the centre of campus."}</p><button onClick={()=>setInteraction("")}>CLOSE</button></div>}
       <div className="controls-help"><span>W A S D <small>MOVE</small></span><span>SHIFT <small>RUN</small></span><span>CLICK GLOWING MARKERS <small>INTERACT</small></span></div>
-      <div className="touch-controls" aria-label="Touch movement controls">{[["KeyW","↑"],["KeyA","←"],["KeyS","↓"],["KeyD","→"]].map(([code,label])=><button key={code} onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);pressKey(code,true);}} onPointerUp={()=>pressKey(code,false)} onPointerCancel={()=>pressKey(code,false)} onPointerLeave={()=>pressKey(code,false)}>{label}</button>)}</div>
+      <div className="joystick-controls"><VirtualJoystick side="move" label="MOVE"/><VirtualJoystick side="look" label="CAMERA"/></div>
       <div className="game-footer"><span>DAY 01</span><span>MONDAY · 08:00 AM</span><span>ACADEMY LIFE SIMULATION</span></div>
       {notice&&<div className="toast">{notice}<button onClick={()=>setNotice("")}>×</button></div>}
     </section>}
