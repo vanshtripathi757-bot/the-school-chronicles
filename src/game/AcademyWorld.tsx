@@ -158,14 +158,14 @@ function Player({ inside = false }: { inside?: boolean }) {
   </group>;
 }
 
-function StudentNPC({ name, role, outfit, start, route, onTalk }: {
+function StudentNPC({ name, outfit, start, route, onTalk }: {
   name:string; outfit:string; start:[number,number,number];
   route:[number,number,number][]; onTalk:(label:string)=>void;
 }) {
   const root=useRef<THREE.Group>(null);
   const step=useRef(0);
   const phase=useRef(Math.random()*Math.PI*2);
-  useFrame((state,delta)=>{
+  useFrame((_,delta)=>{
     if(!root.current) return;
     const target=route[step.current];
     const dx=target[0]-root.current.position.x;
