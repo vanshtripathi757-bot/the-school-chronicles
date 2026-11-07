@@ -5,6 +5,7 @@ import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "
 import { loadGame, saveGame } from "../storage/progress";
 
 type Screen = "menu" | "game" | "settings" | "credits" | "load";
+function playerAction(action:"jump"|"run",active:boolean){window.dispatchEvent(new CustomEvent("tsc-player-action",{detail:{action,active}}));}
 export default function App() {
   const [screen,setScreen]=useState<Screen>("menu");
   const [settings,setSettings]=useState<GameSettings>(loadSettings);
@@ -56,7 +57,7 @@ export default function App() {
           : null}
         <button onClick={()=>setInteraction("")}>CLOSE</button></div>}
       <div className="controls-help"><span>W A S D <small>MOVE</small></span><span>SHIFT <small>RUN</small></span><span>CLICK GLOWING MARKERS <small>INTERACT</small></span></div>
-      <div className="joystick-controls"><VirtualJoystick side="move" label="MOVE"/><div className="camera-drag-hint">DRAG TO LOOK</div></div>
+      <div className="joystick-controls"><VirtualJoystick side="move" label="MOVE"/><div className="camera-drag-hint">DRAG TO LOOK</div><div className="mobile-action-buttons"><button aria-label="Jump" onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);playerAction("jump",true);}} onPointerUp={()=>playerAction("jump",false)} onPointerCancel={()=>playerAction("jump",false)} onLostPointerCapture={()=>playerAction("jump",false)}>↑<small>JUMP</small></button><button aria-label="Run" onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);playerAction("run",true);}} onPointerUp={()=>playerAction("run",false)} onPointerCancel={()=>playerAction("run",false)} onLostPointerCapture={()=>playerAction("run",false)}>»<small>RUN</small></button></div></div>
       <div className="game-footer"><span>DAY 01 · {formatGameTime(gameMinutes)}</span><span>MONDAY · {currentPeriod.name.toUpperCase()} <span>ACADEMY LIFE SIMULATION</span></span></div>
       {notice&&<div className="toast">{notice}<button onClick={()=>setNotice("")}>×</button></div>}
     </section>}
