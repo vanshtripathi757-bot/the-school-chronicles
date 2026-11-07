@@ -1,15 +1,19 @@
 # THE SCHOOL CHRONICLES
 
-A new 2D anime school-life simulation / visual novel / RPG project.
+A third-person 3D anime-inspired school-life exploration game for web and Android.
 
-## Phase 1 foundation
+## Current playable foundation
 
-- React + TypeScript + Vite application shell
-- Phaser 3 scene bootstrap
-- Main menu with New Game, Continue, Load Game, Settings and Credits
-- Local settings persistence
-- IndexedDB/save architecture is intentionally deferred; Phase 1 currently stores preferences in localStorage
-- Capacitor configuration foundation
+- React + TypeScript + Vite application.
+- Three.js rendered through React Three Fiber.
+- Live 3D academy courtyard with academy buildings, library, classrooms, trees, benches and fountain.
+- Third-person follow camera and a simple player prototype.
+- Keyboard movement: WASD / arrow keys; Shift to run.
+- Clickable discovery markers for campus locations.
+- Mobile touch movement pad.
+- Cinematic title screen over a live 3D environment.
+- Settings persisted locally in the browser.
+- Capacitor configuration foundation for later Android packaging.
 
 ## Development
 
@@ -27,13 +31,19 @@ Build command: `npm run build`
 Output directory: `dist`  
 Install command: `npm install`
 
-## Scope
+## Architecture direction
 
-This repository is independent and starts from zero. Dialogue, campus exploration, NPCs, relationships, missions, full save slots and Android packaging are future phases.
+- React / TypeScript: application and game systems.
+- Three.js / React Three Fiber / Drei: 3D rendering and scene components.
+- Rapier: planned physics and collision layer.
+- Zustand: planned shared game state.
+- IndexedDB: planned game-save persistence.
+- Capacitor: planned Android packaging.
 
 ## Current limitations
 
-- No original final art assets have been added yet; the menu uses an authored gradient environment.
-- Save slots are not implemented; Continue accurately reports that no save is available.
-- The Phase 1 storage implementation persists settings only. IndexedDB game-save schema is planned for a later foundation update.
-- Android platform project/APK has not been generated.
+This is an early playable 3D foundation, not the complete game. The academy uses procedural placeholder geometry and simple materials; final anime character models, detailed campus art, animations, NPC schedules, dialogue, school simulation, missions, relationships, story chapters, robust save slots, audio and Android APK packaging are still in development. The current player is a temporary prototype character. Mobile touch movement is basic and needs device testing.
+
+## Project scope
+
+This repository is independent and starts from zero. Do not merge code or assets from unrelated projects. Build the full game incrementally, keeping the web and Android targets performant.
