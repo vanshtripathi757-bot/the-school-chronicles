@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Text } from "@react-three/drei";
 import * as THREE from "three";
+import { loadPlayerPosition, savePlayerPosition } from "../storage/progress";
 
 
 
@@ -49,6 +50,7 @@ function isBlocked(x:number,z:number) {
 function Player({ inside = false }: { inside?: boolean }) {
   const isInteriorBlocked = (x:number,z:number) => Math.abs(x)>10.25 || z < -9.25 || (z>9.25 && Math.abs(x)>3.1);
   const group = useRef<THREE.Group>(null);
+  const initialPosition = useRef(loadPlayerPosition());
   const velocity = useRef(new THREE.Vector3());
   const pressed = useRef(new Set<string>());
   const moveStick = useRef({x:0,y:0});
@@ -63,6 +65,8 @@ function Player({ inside = false }: { inside?: boolean }) {
     };
     const up = (event: KeyboardEvent) => pressed.current.delete(event.code);
     const clear = () => { pressed.current.clear(); moveStick.current={x:0,y:0}; cameraDrag.current=null; };
+    const savePosition = () => { if (group.current) savePlayerPosition({ x: group.current.position.x, z: group.current.position.z }); };
+    const restorePosition = () => { if (!group.current) return; const saved = loadPlayerPosition(); group.current.position.set(saved.x, 0, saved.z); velocity.current.set(0, 0, 0); };
     const joystick = (event:Event) => {
       const detail=(event as CustomEvent<{side:"move";x:number;y:number;active:boolean}>).detail;
       if(detail?.side==="move") moveStick.current=detail.active?{x:detail.x,y:detail.y}:{x:0,y:0};
@@ -86,6 +90,9 @@ function Player({ inside = false }: { inside?: boolean }) {
     window.addEventListener("keyup", up);
     window.addEventListener("blur", clear);
     window.addEventListener("game-joystick",joystick);
+    window.addEventListener("tsc-save-position",savePosition);
+    window.addEventListener("tsc-load-position",restorePosition);
+    window.addEventListener("beforeunload",savePosition);
     window.addEventListener("pointerdown",pointerDown);
     window.addEventListener("pointermove",pointerMove);
     window.addEventListener("pointerup",pointerUp);
@@ -95,6 +102,9 @@ function Player({ inside = false }: { inside?: boolean }) {
       window.removeEventListener("keyup", up);
       window.removeEventListener("blur", clear);
       window.removeEventListener("game-joystick",joystick);
+      window.removeEventListener("tsc-save-position",savePosition);
+      window.removeEventListener("tsc-load-position",restorePosition);
+      window.removeEventListener("beforeunload",savePosition);
       window.removeEventListener("pointerdown",pointerDown);
       window.removeEventListener("pointermove",pointerMove);
       window.removeEventListener("pointerup",pointerUp);
@@ -140,7 +150,7 @@ function Player({ inside = false }: { inside?: boolean }) {
     state.camera.position.lerp(desiredCamera,1-Math.exp(-delta*5));
     state.camera.lookAt(group.current.position.x,1.35,group.current.position.z-1.8);
   });
-  return <group ref={group} position={[0,0,7]}>
+  return <group ref={group} position={[initialPosition.current.x,0,initialPosition.current.z]}>
     <mesh position={[0,1.05,0]} castShadow><capsuleGeometry args={[.38,.8,5,10]} /><meshStandardMaterial color="#e9d9e7" roughness={.72} /></mesh>
     <mesh position={[0,1.95,0]} castShadow><sphereGeometry args={[.34,18,16]} /><meshStandardMaterial color="#f0c8a9" roughness={.8} /></mesh>
     <mesh position={[0,2.12,.02]} castShadow><sphereGeometry args={[.35,16,10,0,Math.PI*2,0,Math.PI*.55]} /><meshStandardMaterial color="#303047" roughness={.95} /></mesh>
