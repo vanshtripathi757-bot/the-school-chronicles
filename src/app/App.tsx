@@ -3,6 +3,7 @@ import { AcademyWorld } from "../game/AcademyWorld";
 import VirtualJoystick from "../components/ui/VirtualJoystick";
 import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "../storage/settings";
 import { loadGame, saveGame } from "../storage/progress";
+import { increaseFriendship, loadFriendships, saveFriendships, type FriendshipMap } from "../storage/relationships";
 
 type Screen = "menu" | "game" | "settings" | "credits" | "load";
 function playerAction(action:"jump"|"run",active:boolean){window.dispatchEvent(new CustomEvent("tsc-player-action",{detail:{action,active}}));}
@@ -13,7 +14,16 @@ export default function App() {
   const [interaction,setInteraction]=useState("");
   const [interior,setInterior]=useState<string|null>(null);
   const [dialogue,setDialogue]=useState("");
+  const [friendships,setFriendships]=useState<FriendshipMap>(loadFriendships);
   const [savedAt,setSavedAt]=useState<number|null>(()=>loadGame()?.savedAt??null);
+  const chooseDialogue=(name:string,message:string)=>{
+    setDialogue(message);
+    setFriendships((current)=>{
+      const next=increaseFriendship(current,name,5);
+      saveFriendships(next);
+      return next;
+    });
+  };
   const [gameMinutes,setGameMinutes]=useState<number>(()=>loadGame()?.gameMinutes??465);
   const persistGame=()=>{window.dispatchEvent(new Event("tsc-save-position"));const saved=saveGame(interior,gameMinutes);setSavedAt(saved.savedAt);setNotice("Journey saved on this device.");};
   const resumeGame=()=>{const saved=loadGame();if(!saved){setNotice("No saved journey yet. Start a new game first.");return;}setInterior(saved.interior);setGameMinutes(saved.gameMinutes);setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));setSavedAt(saved.savedAt);};
@@ -44,11 +54,12 @@ export default function App() {
       <header className="hud-top"><div className="brand-mark">SC <span>THE SCHOOL CHRONICLES</span></div><div className="hud-location">HOSHINO ACADEMY <i>•</i> MAIN COURTYARD</div><div className="hud-actions"><button onClick={persistGame}>SAVE <span>◇</span></button><button onClick={()=>{persistGame();goMenu();}}>PAUSE / MENU <span>Ⅱ</span></button></div></header>
       <div className="objective"><small>DAY 01 · {formatGameTime(gameMinutes)} · {currentPeriod.name.toUpperCase()}</small><strong>{gameMinutes>=480&&gameMinutes<960?`Now: ${currentPeriod.name}`:"Explore the academy"}</strong><span>Next destination: {currentPeriod.place} · 1 game minute / real second</span></div>
       {(interaction||interior)&&<div className="interaction-card"><small>{interior?"BUILDING INTERIOR":"YOU DISCOVERED"}</small><strong>{interior??interaction}</strong><p>{({LIBRARY:"A quiet place filled with books and stories.",CLASSROOMS:"The heart of academy life. Classes begin here.",FOUNTAIN:"A peaceful fountain in the centre of campus.",CAFETERIA:"Meet friends and take a break between classes.",GYMNASIUM:"The indoor sports and fitness centre.",DORMITORY:"Student residence and common rooms.", "SPORTS FIELD":"Outdoor grounds for games and school tournaments.","MAIN GATE":"The main entrance to Hoshino Academy.","ARTS & CLUBS":"Creative studios and after-school club rooms.","ACADEMY ENTRANCE":"Main entrance. The inside area is being prepared.","LIBRARY DOOR":"Library entrance found. Interior access is being built.","CLASSROOM DOOR":"Classroom wing entrance found. Interior access is being built.","CAFETERIA DOOR":"Cafeteria entrance found. Interior access is being built.","GYM DOOR":"Gymnasium entrance found. Interior access is being built.","DORMITORY DOOR":"Dormitory entrance found. Interior access is being built.","CLUB DOOR":"Club wing entrance found. Interior access is being built."} as Record<string,string>)[interaction] ?? "Explore this part of the academy."}</p>{interaction.startsWith("TALK: ")&&<div className="npc-dialogue">
+          <small className="friendship-status">FRIENDSHIP · {friendships[interaction.replace("TALK: ","")]??0}/100</small>
           <p>{dialogue || "A student from Hoshino Academy is ready to chat."}</p>
           <div className="dialogue-choices">
-            <button onClick={()=>setDialogue("Good morning! I’m getting ready for the first homeroom. See you in class.")}>Good morning!</button>
-            <button onClick={()=>setDialogue("Today: 08:00 Homeroom · 09:00 Mathematics · 10:00 Science · 11:00 Break.")}>What is today's timetable?</button>
-            <button onClick={()=>setDialogue("The library, cafeteria and sports field are all open to explore.")}>Where should I go?</button>
+            <button onClick={()=>chooseDialogue(interaction.replace("TALK: ",""),"Good morning! I’m getting ready for the first homeroom. See you in class.")}>Good morning! <span>+5</span></button>
+            <button onClick={()=>chooseDialogue(interaction.replace("TALK: ",""),"Today: 08:00 Homeroom · 09:00 Mathematics · 10:00 Science · 11:00 Break.")}>Ask about today's timetable <span>+5</span></button>
+            <button onClick={()=>chooseDialogue(interaction.replace("TALK: ",""),"The library, cafeteria and sports field are all open to explore.")}>Ask for campus tips <span>+5</span></button>
           </div>
         </div>}{interior
         ? <button onClick={()=>{setInterior(null);setInteraction("");}}>EXIT BUILDING</button>
