@@ -43,7 +43,6 @@ function AcademyBuilding({ position, label, color = "#d8d0c4" }: { position: [nu
     {Array.from({length:13},(_,i)=><mesh key={i} position={[-5+i*.83,3.48,3.02]}><cylinderGeometry args={[.035,.035,.55,6]}/><meshStandardMaterial color={trim}/></mesh>)}
     {/* school name plaque */}
     <mesh position={[0,5.65,2.68]}><boxGeometry args={[4.4,.62,.16]}/><meshStandardMaterial color="#384a55" roughness={.5}/></mesh>
-    <Text position={[0,5.66,2.78]} fontSize={.25} maxWidth={4.1} color="#fff0d5" anchorX="center" anchorY="middle">{label}</Text>
     {/* corner pilasters and wall-mounted details */}
     {[-5.4,5.4].map(x=><group key={"pilaster"+x} position={[x,3.35,2.67]}>
       <mesh><boxGeometry args={[.24,5.5,.28]}/><meshStandardMaterial color="#e8d9c5"/></mesh>
@@ -348,7 +347,6 @@ function InteractiveMarker({ position, label, onSelect, playerPosition }: { posi
   return <group position={position} onClick={(e)=>{e.stopPropagation();const target=new THREE.Vector3(...position);onSelect(playerPosition.current.distanceTo(target)<=6.5?label:"TOO FAR — MOVE CLOSER");}}>
     <Float speed={1.4} rotationIntensity={.08} floatIntensity={.18}>
       <mesh position={[0,1.3,0]}><sphereGeometry args={[.2,16,16]} /><meshBasicMaterial color="#d8a8ff" /></mesh>
-      <Text position={[0,1.75,0]} fontSize={.35} color="#fff0d9" outlineWidth={.025} outlineColor="#201a30" anchorX="center">{label}</Text>
     </Float>
     <mesh position={[0,.15,0]}><cylinderGeometry args={[.48,.48,.25,20]} /><meshStandardMaterial color="#a88ac2" emissive="#4d2868" emissiveIntensity={.35} /></mesh>
   </group>;
@@ -403,7 +401,6 @@ function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInte
       </group>)}
       {/* front teaching wall, board and clock */}
       <mesh position={[0,3.2,-9.72]}><boxGeometry args={[7.6,2.35,.12]}/><meshStandardMaterial color="#294b47" roughness={.68}/></mesh>
-      <Text position={[0,3.2,-9.62]} fontSize={.55} maxWidth={7} color="#f3eee2" anchorX="center" anchorY="middle">{isLibrary?"READ • LEARN • DISCOVER":isCafe?"HOSHINO CAFETERIA":"HOSHINO ACADEMY"}</Text>
       <mesh position={[8.8,6.2,-9.58]}><cylinderGeometry args={[.42,.42,.1,32]}/><meshStandardMaterial color="#f3e7d0"/></mesh>
       <Text position={[8.8,6.2,-9.48]} fontSize={.22} color="#4b4240" anchorX="center" anchorY="middle">10:10</Text>
       {isLibrary ? <>
@@ -441,7 +438,7 @@ function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInte
     <ambientLight intensity={1.15} />
     <directionalLight position={[-12,18,8]} intensity={2.1} castShadow shadow-mapSize={[1024,1024]} />
     <hemisphereLight args={["#dce9ff","#7b806f",.65]} />
-    <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[200,200]} /><meshStandardMaterial color="#758c78" roughness={1} /></mesh>
+    <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[240,240]} /><meshStandardMaterial color="#758c78" roughness={1} /></mesh>
     <mesh position={[0,-.015,1]} receiveShadow><boxGeometry args={[17,.08,29]} /><meshStandardMaterial color="#c3b7a5" roughness={1} /></mesh>
     <mesh position={[0,.01,5]}><boxGeometry args={[4,.06,22]} /><meshStandardMaterial color="#d6cbb8" /></mesh>
     <AcademyBuilding position={[0,0,-12]} label="HOSHINO ACADEMY" color="#d5d0d7" />
@@ -480,14 +477,31 @@ function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInte
       {[-.9,.9].map(z=><mesh key={z} position={[0,.27,z*.15]}><boxGeometry args={[.14,.55,.14]}/><meshStandardMaterial color="#45444a"/></mesh>)}
     </group>)}
     {/* Boundary walls and planted campus edges */}
-    {[-42,42].map(x=><mesh key={"boundary-x"+x} position={[x,1.1,0]} castShadow><boxGeometry args={[.45,2.2,88]}/><meshStandardMaterial color="#c2b7a8"/></mesh>)}
-    <mesh position={[0,1.1,-43]} castShadow><boxGeometry args={[84,.45,2.2]}/><meshStandardMaterial color="#c2b7a8"/></mesh>
-    {[-36,-28,-20,-12,12,20,28,36].map(x=><CampusShrub key={"edge"+x} position={[x,0,40]} scale={.72}/>)}
+    {[-42,42].map(x=><mesh key={"boundary-x"+x} position={[x,1.1,0]} castShadow><boxGeometry args={[.45,2.2,120]}/><meshStandardMaterial color="#c2b7a8"/></mesh>)}
+    <mesh position={[0,1.1,-60]} castShadow><boxGeometry args={[120,.45,2.2]}/><meshStandardMaterial color="#c2b7a8"/></mesh>
+    {[-36,-28,-20,-12,12,20,28,36].map(x=><CampusShrub key={"edge"+x} position={[x,0,56]} scale={.72}/>)}
+    {/* Expanded campus districts */}
+    <AcademyBuilding position={[-45,0,-34]} label="SCIENCE BLOCK" color="#c6d2d1" />
+    <AcademyBuilding position={[45,0,34]} label="STUDENT CENTRE" color="#d5c9b7" />
+    <AcademyBuilding position={[0,0,-49]} label="PERFORMING ARTS" color="#cfc2d5" />
+    <mesh position={[-34,.008,-19]}><boxGeometry args={[3.2,.06,38]}/><meshStandardMaterial color="#c9bdab" roughness={1}/></mesh>
+    <mesh position={[34,.008,24]}><boxGeometry args={[3.2,.06,38]}/><meshStandardMaterial color="#c9bdab" roughness={1}/></mesh>
+    <mesh position={[0,.008,-38]}><boxGeometry args={[54,.06,3.2]}/><meshStandardMaterial color="#c9bdab" roughness={1}/></mesh>
+    <mesh position={[0,.008,43]}><boxGeometry args={[54,.06,3.2]}/><meshStandardMaterial color="#c9bdab" roughness={1}/></mesh>
+    <group position={[-43,0,34]}>
+      <mesh position={[0,.04,0]} receiveShadow><cylinderGeometry args={[8,8,.12,48]}/><meshStandardMaterial color="#66866c" roughness={1}/></mesh>
+      <mesh position={[0,.12,0]}><cylinderGeometry args={[4.4,4.4,.16,48]}/><meshStandardMaterial color="#6da6b2" metalness={.12} roughness={.2}/></mesh>
+      {Array.from({length:10},(_,i)=>{const angle=i*Math.PI/5;return <CampusShrub key={"garden-shrub"+i} position={[Math.cos(angle)*6.2,0,Math.sin(angle)*6.2]} scale={.68}/>;})}
+      {[-2.4,2.4].map(x=><mesh key={x} position={[x,.55,5.2]} castShadow><boxGeometry args={[2.1,.16,.6]}/><meshStandardMaterial color="#795a48"/></mesh>)}
+    </group>
+    <InteractiveMarker position={[-45,0,-30]} label="SCIENCE BLOCK" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[45,0,38]} label="STUDENT CENTRE" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[0,0,-45]} label="PERFORMING ARTS" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[-43,0,34]} label="CAMPUS GARDEN" onSelect={onInteract} playerPosition={playerPosition}/>
     {/* Main entrance gate */}
     <group position={[0,0,43]}>
       {[-5,5].map(x=><mesh key={x} position={[x,2.8,0]} castShadow><boxGeometry args={[1.2,5.6,1.2]}/><meshStandardMaterial color="#c8b7aa"/></mesh>)}
       <mesh position={[0,5.35,0]} castShadow><boxGeometry args={[11.5,.8,1.4]}/><meshStandardMaterial color="#49425d"/></mesh>
-      <Text position={[0,5.45,.76]} fontSize={.48} color="#f6e8d2" anchorX="center">HOSHINO ACADEMY</Text>
     </group>
     {/* Outdoor sports field */}
     <group position={[29,0,-22]}>
