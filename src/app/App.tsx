@@ -15,6 +15,7 @@ export default function App() {
   const [savedAt,setSavedAt]=useState<number|null>(()=>loadGame()?.savedAt??null);
   const persistGame=()=>{window.dispatchEvent(new Event("tsc-save-position"));const saved=saveGame(interior);setSavedAt(saved.savedAt);setNotice("Journey saved on this device.");};
   const resumeGame=()=>{const saved=loadGame();if(!saved){setNotice("No saved journey yet. Start a new game first.");return;}setInterior(saved.interior);setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));setSavedAt(saved.savedAt);};
+  const startNewGame=()=>{localStorage.removeItem("tsc-player-position-v1");localStorage.removeItem("tsc-save-v1");setSavedAt(null);setInterior(null);setInteraction("");setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));};
   const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
   const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");setInterior(null);setDialogue("");};
   return <main className="game-root">
