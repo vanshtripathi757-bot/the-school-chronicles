@@ -89,7 +89,15 @@ function Player() {
     const forward = keys.has("KeyW") || keys.has("ArrowUp");
     const backward = keys.has("KeyS") || keys.has("ArrowDown");
     const running = keys.has("ShiftLeft") || keys.has("ShiftRight");
-    const direction = new THREE.Vector3(Number(right)-Number(left)+moveStick.current.x,0,Number(backward)-Number(forward)-moveStick.current.y);
+    // Controls are camera-relative: up = forward, right = screen-right.
+    const localX = Number(right)-Number(left)+moveStick.current.x;
+    const localZ = Number(backward)-Number(forward)+moveStick.current.y;
+    const yaw = cameraOrbit.current.yaw;
+    const direction = new THREE.Vector3(
+      localX*Math.cos(yaw)+localZ*Math.sin(yaw),
+      0,
+      -localX*Math.sin(yaw)+localZ*Math.cos(yaw)
+    );
     if (direction.lengthSq() > 0) direction.normalize();
     const speed = running ? 8 : 4.6;
     velocity.current.lerp(direction.multiplyScalar(speed), Math.min(1,delta*10));
