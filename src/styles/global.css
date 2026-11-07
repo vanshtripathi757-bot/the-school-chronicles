@@ -59,3 +59,14 @@
 .mission-card>div.completed{color:#a8cdb6;text-decoration:line-through;text-decoration-color:#a8cdb6}
 .mission-card>div.completed span{color:#a8cdb6}
 @media(max-width:760px){.mission-card{top:126px;right:12px;width:178px;padding:10px 11px}.mission-card>small{font-size:7px}.mission-card>div{font-size:9px;gap:6px;margin:6px 0}}
+
+
+/* Player progression HUD */
+.progress-card{position:absolute;top:94px;left:28px;width:210px;padding:12px 14px;border:1px solid #d9b4e966;background:#111323d9;backdrop-filter:blur(10px);box-shadow:0 8px 26px #0005;color:#f4eaf7}
+.progress-card>div:first-child{display:flex;align-items:center;gap:10px}
+.progress-card small{display:block;color:#d9b8ed;font-size:7px;letter-spacing:.16em}
+.progress-card strong{font:600 17px 'Playfair Display';color:#fff}
+.progress-card span{margin-left:auto;color:#e2c2f1;font-size:10px}
+.progress-track{height:5px;margin:9px 0 7px;border-radius:8px;background:#ffffff20;overflow:hidden}
+.progress-track i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#a878c6,#e5c4f5);transition:width .25s ease}
+@media(max-width:760px){.progress-card{top:64px;left:12px;width:145px;padding:9px 10px}.progress-card strong{font-size:14px}.progress-card small{font-size:6px}.progress-card span{font-size:8px}.mission-card{top:156px}}
