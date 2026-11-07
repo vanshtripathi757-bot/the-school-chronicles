@@ -39,7 +39,7 @@ const BUILDING_COLLIDERS:RectObstacle[] = [
 ];
 function isBlocked(x:number,z:number) {
   const radius=.48;
-  if(BUILDING_COLLIDERS.some(o=>Math.abs(x-o.x)<o.halfX+radius && Math.abs(z-o.z)<o.halfZ+radius)) return true;
+  if(BUILDING_COLLIDERS.some(o=>Math.abs(x-o.x)<o.halfX+radius && Math.abs(z-o.z)<o.halfZ+radius && !(Math.abs(x-o.x)<1.35 && z>o.z+o.halfZ-0.15 && z<o.z+o.halfZ+1.35))) return true;
   if([-5,5].some(gateX=>Math.hypot(x-gateX,z-43)<1.05)) return true;
   const treesX=[-9,-6,6,9], treesZ=[-10,-3,5,12];
   if(treesX.some(tx=>treesZ.some(tz=>Math.hypot(x-tx,z-tz)<.72))) return true;
