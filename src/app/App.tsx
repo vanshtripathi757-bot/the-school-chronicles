@@ -9,10 +9,11 @@ export default function App() {
   const [settings,setSettings]=useState<GameSettings>(loadSettings);
   const [notice,setNotice]=useState("");
   const [interaction,setInteraction]=useState("");
+  const [interior,setInterior]=useState<string|null>(null);
   const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
-  const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");};
+  const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");setInterior(null);};
   return <main className="game-root">
-    {(screen==="menu"||screen==="game")&&<div className="world-layer"><AcademyWorld onInteract={setInteraction}/></div>}
+    {(screen==="menu"||screen==="game")&&<div className="world-layer"><AcademyWorld onInteract={setInteraction} interior={interior}/></div>}
     {screen==="menu"&&<section className="title-screen">
       <div className="title-topline"><span>AN ORIGINAL ANIME SCHOOL-LIFE ADVENTURE</span><span>EARLY ACCESS · BUILD 0.2</span></div>
       <div className="title-copy"><div className="crest">✦ HOSHINO ACADEMY ✦</div><h1>THE SCHOOL<br/><em>CHRONICLES</em></h1><p>YOUR DAYS. YOUR CHOICES. YOUR STORY.</p><div className="title-rule"/></div>
@@ -30,7 +31,12 @@ export default function App() {
     {screen==="game"&&<section className="game-hud">
       <header className="hud-top"><div className="brand-mark">SC <span>THE SCHOOL CHRONICLES</span></div><div className="hud-location">HOSHINO ACADEMY <i>•</i> MAIN COURTYARD</div><button onClick={goMenu}>PAUSE / MENU <span>Ⅱ</span></button></header>
       <div className="objective"><small>YOUR FIRST DAY</small><strong>Explore the academy</strong><span>Walk around and discover the campus.</span></div>
-      {interaction&&<div className="interaction-card"><small>YOU DISCOVERED</small><strong>{interaction}</strong><p>{({LIBRARY:"A quiet place filled with books and stories.",CLASSROOMS:"The heart of academy life. Classes begin here.",FOUNTAIN:"A peaceful fountain in the centre of campus.",CAFETERIA:"Meet friends and take a break between classes.",GYMNASIUM:"The indoor sports and fitness centre.",DORMITORY:"Student residence and common rooms.", "SPORTS FIELD":"Outdoor grounds for games and school tournaments.","MAIN GATE":"The main entrance to Hoshino Academy.","ARTS & CLUBS":"Creative studios and after-school club rooms.","ACADEMY ENTRANCE":"Main entrance. The inside area is being prepared.","LIBRARY DOOR":"Library entrance found. Interior access is being built.","CLASSROOM DOOR":"Classroom wing entrance found. Interior access is being built.","CAFETERIA DOOR":"Cafeteria entrance found. Interior access is being built.","GYM DOOR":"Gymnasium entrance found. Interior access is being built.","DORMITORY DOOR":"Dormitory entrance found. Interior access is being built.","CLUB DOOR":"Club wing entrance found. Interior access is being built."} as Record<string,string>)[interaction] ?? "Explore this part of the academy."}</p><button onClick={()=>setInteraction("")}>CLOSE</button></div>}
+      {(interaction||interior)&&<div className="interaction-card"><small>{interior?"BUILDING INTERIOR":"YOU DISCOVERED"}</small><strong>{interior??interaction}</strong><p>{({LIBRARY:"A quiet place filled with books and stories.",CLASSROOMS:"The heart of academy life. Classes begin here.",FOUNTAIN:"A peaceful fountain in the centre of campus.",CAFETERIA:"Meet friends and take a break between classes.",GYMNASIUM:"The indoor sports and fitness centre.",DORMITORY:"Student residence and common rooms.", "SPORTS FIELD":"Outdoor grounds for games and school tournaments.","MAIN GATE":"The main entrance to Hoshino Academy.","ARTS & CLUBS":"Creative studios and after-school club rooms.","ACADEMY ENTRANCE":"Main entrance. The inside area is being prepared.","LIBRARY DOOR":"Library entrance found. Interior access is being built.","CLASSROOM DOOR":"Classroom wing entrance found. Interior access is being built.","CAFETERIA DOOR":"Cafeteria entrance found. Interior access is being built.","GYM DOOR":"Gymnasium entrance found. Interior access is being built.","DORMITORY DOOR":"Dormitory entrance found. Interior access is being built.","CLUB DOOR":"Club wing entrance found. Interior access is being built."} as Record<string,string>)[interaction] ?? "Explore this part of the academy."}</p>{interior
+        ? <button onClick={()=>{setInterior(null);setInteraction("");}}>EXIT BUILDING</button>
+        : interaction.endsWith("DOOR")
+          ? <button onClick={()=>{setInterior(interaction.replace(" DOOR",""));setInteraction("");}}>ENTER BUILDING</button>
+          : null}
+        <button onClick={()=>setInteraction("")}>CLOSE</button></div>}
       <div className="controls-help"><span>W A S D <small>MOVE</small></span><span>SHIFT <small>RUN</small></span><span>CLICK GLOWING MARKERS <small>INTERACT</small></span></div>
       <div className="joystick-controls"><VirtualJoystick side="move" label="MOVE"/><div className="camera-drag-hint">DRAG TO LOOK</div></div>
       <div className="game-footer"><span>DAY 01</span><span>MONDAY · 08:00 AM</span><span>ACADEMY LIFE SIMULATION</span></div>
