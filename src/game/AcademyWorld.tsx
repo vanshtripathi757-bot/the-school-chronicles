@@ -46,7 +46,8 @@ function isBlocked(x:number,z:number) {
   return false;
 }
 
-function Player() {
+function Player({ inside = false }: { inside?: boolean }) {
+  const isInteriorBlocked = (x:number,z:number) => Math.abs(x)>10.25 || z < -9.25 || (z>9.25 && Math.abs(x)>3.1);
   const group = useRef<THREE.Group>(null);
   const velocity = useRef(new THREE.Vector3());
   const pressed = useRef(new Set<string>());
@@ -123,9 +124,9 @@ function Player() {
     const nextX=THREE.MathUtils.clamp(group.current.position.x+velocity.current.x*delta,-58,58);
     const nextZ=THREE.MathUtils.clamp(group.current.position.z+velocity.current.z*delta,-58,58);
     // Resolve axes separately so the player can slide along walls instead of sticking.
-    if(!isBlocked(nextX,group.current.position.z)) group.current.position.x=nextX;
+    if(!(inside ? isInteriorBlocked(nextX,group.current.position.z) : isBlocked(nextX,group.current.position.z))) group.current.position.x=nextX;
     else velocity.current.x=0;
-    if(!isBlocked(group.current.position.x,nextZ)) group.current.position.z=nextZ;
+    if(!(inside ? isInteriorBlocked(group.current.position.x,nextZ) : isBlocked(group.current.position.x,nextZ))) group.current.position.z=nextZ;
     else velocity.current.z=0;
     if (velocity.current.lengthSq() > .05) group.current.rotation.y = Math.atan2(velocity.current.x,velocity.current.z);
     const bob = Math.sin(state.clock.elapsedTime*10)*.035*Math.min(1,velocity.current.length());
@@ -167,8 +168,8 @@ function World({ onInteract, interior }: { onInteract:(label:string)=>void; inte
     <mesh position={[0,4.2,-10]}><boxGeometry args={[22,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
     <mesh position={[-11,4.2,0]}><boxGeometry args={[.35,8,20]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
     <mesh position={[11,4.2,0]}><boxGeometry args={[.35,8,20]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
-    <mesh position={[-5,4.2,10]}><boxGeometry args={[12,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
-    <mesh position={[8,4.2,10]}><boxGeometry args={[6,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
+    <mesh position={[-7,4.2,10]}><boxGeometry args={[8,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
+    <mesh position={[7,4.2,10]}><boxGeometry args={[8,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
     <mesh position={[0,3.1,-9.72]}><boxGeometry args={[7,2.2,.08]}/><meshStandardMaterial color="#23443e" roughness={.65}/></mesh>
     <Text position={[0,5.3,-9.6]} fontSize={.72} color="#f6e8d2" anchorX="center">{interior.toUpperCase()}</Text>
     {[-5,0,5].map(x=><group key={x} position={[x,0,-5]}>
@@ -182,7 +183,7 @@ function World({ onInteract, interior }: { onInteract:(label:string)=>void; inte
       <mesh position={[0,.62,1.65]}><boxGeometry args={[1.1,.12,.9]}/><meshStandardMaterial color="#735b4e"/></mesh>
     </group>)}
     <InteractiveMarker position={[0,0,8.4]} label="EXIT" onSelect={onInteract}/>
-    <Player />
+    <Player inside />
   </>;
   return <>
     <color attach="background" args={["#a9b9cb"]} />
