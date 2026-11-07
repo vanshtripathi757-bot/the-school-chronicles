@@ -47,3 +47,20 @@ This is an early playable 3D foundation, not the complete game. The academy uses
 ## Project scope
 
 This repository is independent and starts from zero. Do not merge code or assets from unrelated projects. Build the full game incrementally, keeping the web and Android targets performant.
+
+
+## Gemini AI Story Director
+
+The optional Story Director generates one age-appropriate story activity at a time. New content is queued locally and gated behind XP progression; the client checks for a new pack on game entry, with a 24-hour generation cooldown. Generated packs are data only and cannot execute code or alter the game.
+
+### Configure on Vercel
+
+1. Open the Vercel project settings.
+2. Go to Environment Variables.
+3. Add GEMINI_API_KEY with the secret API key created in Google AI Studio. Do not add this value to source code, .env.example, browser settings, or chat.
+4. Optionally add GEMINI_MODEL (default: gemini-2.5-flash).
+5. Apply the variables to the Production and Preview environments you use, then redeploy.
+
+The key is read only by api/story-director.ts; the browser calls the same-origin /api/story-director endpoint and never receives the key.
+
+The endpoint validates generated JSON, limits output size, rejects cross-origin requests when an Origin header is present, and applies a best-effort per-instance rate limit. For a public production launch, add durable shared rate limiting and authenticated player sessions before scaling usage. Generated content is stored in the current browser's local storage; it is not yet synchronized across devices. The app does not run a permanent background worker: it requests the next pack when a player enters the game after the cooldown.
