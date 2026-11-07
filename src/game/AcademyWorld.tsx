@@ -27,6 +27,25 @@ function Tree({ position, scale = 1 }: { position: [number,number,number]; scale
   </group>;
 }
 
+type RectObstacle = { x:number; z:number; halfX:number; halfZ:number };
+const BUILDING_COLLIDERS:RectObstacle[] = [
+  {x:0,z:-12,halfX:5.8,halfZ:2.9},
+  {x:-12,z:-1,halfX:5.8,halfZ:2.9},
+  {x:12,z:-1,halfX:5.8,halfZ:2.9},
+  {x:-29,z:-20,halfX:5.8,halfZ:2.9},
+  {x:29,z:14,halfX:5.8,halfZ:2.9},
+  {x:-29,z:14,halfX:5.8,halfZ:2.9},
+  {x:29,z:-35,halfX:5.8,halfZ:2.9}
+];
+function isBlocked(x:number,z:number) {
+  const radius=.48;
+  if(BUILDING_COLLIDERS.some(o=>Math.abs(x-o.x)<o.halfX+radius && Math.abs(z-o.z)<o.halfZ+radius)) return true;
+  if([-5,5].some(gateX=>Math.hypot(x-gateX,z-43)<1.05)) return true;
+  const treesX=[-9,-6,6,9], treesZ=[-10,-3,5,12];
+  if(treesX.some(tx=>treesZ.some(tz=>Math.hypot(x-tx,z-tz)<.72))) return true;
+  return false;
+}
+
 function Player() {
   const group = useRef<THREE.Group>(null);
   const velocity = useRef(new THREE.Vector3());
@@ -101,9 +120,13 @@ function Player() {
     if (direction.lengthSq() > 0) direction.normalize();
     const speed = running ? 8 : 4.6;
     velocity.current.lerp(direction.multiplyScalar(speed), Math.min(1,delta*10));
-    group.current.position.addScaledVector(velocity.current,delta);
-    group.current.position.x = THREE.MathUtils.clamp(group.current.position.x,-58,58);
-    group.current.position.z = THREE.MathUtils.clamp(group.current.position.z,-58,58);
+    const nextX=THREE.MathUtils.clamp(group.current.position.x+velocity.current.x*delta,-58,58);
+    const nextZ=THREE.MathUtils.clamp(group.current.position.z+velocity.current.z*delta,-58,58);
+    // Resolve axes separately so the player can slide along walls instead of sticking.
+    if(!isBlocked(nextX,group.current.position.z)) group.current.position.x=nextX;
+    else velocity.current.x=0;
+    if(!isBlocked(group.current.position.x,nextZ)) group.current.position.z=nextZ;
+    else velocity.current.z=0;
     if (velocity.current.lengthSq() > .05) group.current.rotation.y = Math.atan2(velocity.current.x,velocity.current.z);
     const bob = Math.sin(state.clock.elapsedTime*10)*.035*Math.min(1,velocity.current.length());
     group.current.position.y = Math.abs(bob);
@@ -173,6 +196,13 @@ function World({ onInteract }: { onInteract:(label:string)=>void }) {
     <mesh position={[0,.9,-5]}><cylinderGeometry args={[.08,.08,.8,12]} /><meshStandardMaterial color="#d5e7ee" /></mesh>
     {[-9,-6,6,9].map((x)=>[-10,-3,5,12].map((z)=><Tree key={x+"-"+z} position={[x,0,z]} scale={.8+(Math.abs(x+z)%3)*.12}/>))}
     {[-3,3].map((x)=><group key={x} position={[x,0,3]}><mesh position={[0,.55,0]} castShadow><boxGeometry args={[2.4,.18,.7]} /><meshStandardMaterial color="#795b50" /></mesh><mesh position={[-.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh><mesh position={[.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh></group>)}
+    <InteractiveMarker position={[0,0,-8.2]} label="ACADEMY ENTRANCE" onSelect={onInteract}/>
+    <InteractiveMarker position={[-12,0,2.7]} label="LIBRARY DOOR" onSelect={onInteract}/>
+    <InteractiveMarker position={[12,0,2.7]} label="CLASSROOM DOOR" onSelect={onInteract}/>
+    <InteractiveMarker position={[-29,0,-16.7]} label="CAFETERIA DOOR" onSelect={onInteract}/>
+    <InteractiveMarker position={[29,0,17.7]} label="GYM DOOR" onSelect={onInteract}/>
+    <InteractiveMarker position={[-29,0,17.7]} label="DORMITORY DOOR" onSelect={onInteract}/>
+    <InteractiveMarker position={[29,0,-31.7]} label="CLUB DOOR" onSelect={onInteract}/>
     <InteractiveMarker position={[-12,0,2]} label="LIBRARY" onSelect={onInteract}/>
     <InteractiveMarker position={[12,0,2]} label="CLASSROOMS" onSelect={onInteract}/>
     <InteractiveMarker position={[0,0,-5]} label="FOUNTAIN" onSelect={onInteract}/>
