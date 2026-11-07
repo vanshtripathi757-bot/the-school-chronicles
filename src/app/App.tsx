@@ -24,7 +24,7 @@ export default function App() {
       <div className="title-topline"><span>AN ORIGINAL ANIME SCHOOL-LIFE ADVENTURE</span><span>EARLY ACCESS · BUILD 0.2</span></div>
       <div className="title-copy"><div className="crest">✦ HOSHINO ACADEMY ✦</div><h1>THE SCHOOL<br/><em>CHRONICLES</em></h1><p>YOUR DAYS. YOUR CHOICES. YOUR STORY.</p><div className="title-rule"/></div>
       <nav className="main-menu" aria-label="Main menu">
-        <button className="primary" onClick={()=>{setScreen("game");setNotice("");}}> <span>01</span> NEW GAME <b>↗</b></button>
+        <button className="primary" onClick={startNewGame}> <span>01</span> NEW GAME <b>↗</b></button>
         <button onClick={resumeGame}><span>02</span> CONTINUE <b>◇</b></button>
         <button onClick={()=>setScreen("load")}><span>03</span> LOAD GAME <b>▤</b></button>
         <button onClick={()=>setScreen("settings")}><span>04</span> SETTINGS <b>⚙</b></button>
