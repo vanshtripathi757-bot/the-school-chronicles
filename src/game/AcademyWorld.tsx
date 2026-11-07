@@ -337,32 +337,73 @@ const NPC_ROUTES = {
 
 function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number; onPositionChange:(position:{x:number;z:number})=>void }) {
   const playerPosition=useRef(new THREE.Vector3());
-  if(interior) return <>
-    <color attach="background" args={["#1b1b2b"]} />
-    <fog attach="fog" args={["#1b1b2b",24,48]} />
-    <ambientLight intensity={1.05} />
-    <directionalLight position={[-5,12,7]} intensity={1.5} castShadow />
-    <mesh position={[0,-.12,0]} receiveShadow><boxGeometry args={[22,.24,20]}/><meshStandardMaterial color="#9a8d82" roughness={.9}/></mesh>
-    <mesh position={[0,4.2,-10]}><boxGeometry args={[22,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
-    <mesh position={[-11,4.2,0]}><boxGeometry args={[.35,8,20]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
-    <mesh position={[11,4.2,0]}><boxGeometry args={[.35,8,20]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
-    <mesh position={[-7,4.2,10]}><boxGeometry args={[8,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
-    <mesh position={[7,4.2,10]}><boxGeometry args={[8,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
-    <mesh position={[0,3.1,-9.72]}><boxGeometry args={[7,2.2,.08]}/><meshStandardMaterial color="#23443e" roughness={.65}/></mesh>
-    <Text position={[0,5.3,-9.6]} fontSize={.72} color="#f6e8d2" anchorX="center">{interior.toUpperCase()}</Text>
-    {[-5,0,5].map(x=><group key={x} position={[x,0,-5]}>
-      <mesh position={[0,1.35,0]} castShadow><boxGeometry args={[3.1,.18,1.5]}/><meshStandardMaterial color="#9b7659"/></mesh>
-      <mesh position={[0,.68,.85]}><boxGeometry args={[.8,1.25,.12]}/><meshStandardMaterial color="#5b4851"/></mesh>
-      <mesh position={[0,.62,1.65]}><boxGeometry args={[1.1,.12,.9]}/><meshStandardMaterial color="#735b4e"/></mesh>
-    </group>)}
-    {[-5,0,5].map(x=><group key={x} position={[x,0,1]}>
-      <mesh position={[0,1.35,0]} castShadow><boxGeometry args={[3.1,.18,1.5]}/><meshStandardMaterial color="#9b7659"/></mesh>
-      <mesh position={[0,.68,.85]}><boxGeometry args={[.8,1.25,.12]}/><meshStandardMaterial color="#5b4851"/></mesh>
-      <mesh position={[0,.62,1.65]}><boxGeometry args={[1.1,.12,.9]}/><meshStandardMaterial color="#735b4e"/></mesh>
-    </group>)}
-    <InteractiveMarker position={[0,0,8.4]} label="EXIT" onSelect={onInteract} playerPosition={playerPosition}/>
-    <Player inside playerPosition={playerPosition} onPositionChange={onPositionChange}/>
-  </>;
+  if(interior) {
+    const isLibrary=interior.toLowerCase().includes("library");
+    const isCafe=interior.toLowerCase().includes("cafe");
+    const wall=isLibrary?"#d8cbb9":isCafe?"#e3d4bf":"#d9d5cb";
+    const desk=isCafe?"#80604c":"#8a6a50";
+    return <>
+      <color attach="background" args={["#aab7bf"]}/>
+      <fog attach="fog" args={["#aab7bf",28,58]}/>
+      <ambientLight intensity={1.35}/>
+      <directionalLight position={[-5,12,7]} intensity={1.7} castShadow shadow-mapSize={[1024,1024]}/>
+      <hemisphereLight args={["#e8f1ff","#887b6c",.55]}/>
+      <mesh position={[0,-.12,0]} receiveShadow><boxGeometry args={[22,.24,20]}/><meshStandardMaterial color="#9b9389" roughness={.88}/></mesh>
+      {/* tiled floor with contrasting perimeter */}
+      <mesh position={[0,.015,0]}><boxGeometry args={[21.5,.035,19.5]}/><meshStandardMaterial color="#c9bca9" roughness={.84}/></mesh>
+      {Array.from({length:10},(_,i)=><mesh key={"tile-z"+i} position={[0,.04,-9+i*2]}><boxGeometry args={[21,.018,.035]}/><meshStandardMaterial color="#a99f93"/></mesh>)}
+      {Array.from({length:11},(_,i)=><mesh key={"tile-x"+i} position={[-10+i*2,.04,0]}><boxGeometry args={[.035,.018,19]}/><meshStandardMaterial color="#a99f93"/></mesh>)}
+      {/* walls and warm timber framing */}
+      <mesh position={[0,4.2,-10]}><boxGeometry args={[22,8,.35]}/><meshStandardMaterial color={wall}/></mesh>
+      <mesh position={[-11,4.2,0]}><boxGeometry args={[.35,8,20]}/><meshStandardMaterial color={wall}/></mesh>
+      <mesh position={[11,4.2,0]}><boxGeometry args={[.35,8,20]}/><meshStandardMaterial color={wall}/></mesh>
+      <mesh position={[-7,4.2,10]}><boxGeometry args={[8,8,.35]}/><meshStandardMaterial color={wall}/></mesh>
+      <mesh position={[7,4.2,10]}><boxGeometry args={[8,8,.35]}/><meshStandardMaterial color={wall}/></mesh>
+      {[-9,-4,4,9].map(x=><mesh key={x} position={[x,4.2,-9.76]}><boxGeometry args={[.14,8,.18]}/><meshStandardMaterial color="#826c59"/></mesh>)}
+      <mesh position={[0,7.95,0]}><boxGeometry args={[22,.2,20]}/><meshStandardMaterial color="#eee8dc"/></mesh>
+      {[-8,-4,0,4,8].map(x=><group key={"light"+x} position={[x,7.65,-1]}>
+        <mesh><boxGeometry args={[1.7,.08,.55]}/><meshStandardMaterial color="#fff0ca" emissive="#ffdfa0" emissiveIntensity={.3}/></mesh>
+      </group>)}
+      {/* daylight windows along the side wall */}
+      {[-6,0,6].map(x=><group key={"window"+x} position={[x,4.7,-9.77]}>
+        <mesh><boxGeometry args={[3.1,2.35,.1]}/><meshStandardMaterial color="#e9e0d1"/></mesh>
+        <mesh position={[0,0,.07]}><boxGeometry args={[2.8,2.05,.06]}/><meshStandardMaterial color="#7fa5b1" metalness={.15} roughness={.25}/></mesh>
+        <mesh position={[0,0,.12]}><boxGeometry args={[.07,2.05,.05]}/><meshStandardMaterial color="#e8dfd0"/></mesh>
+      </group>)}
+      {/* front teaching wall, board and clock */}
+      <mesh position={[0,3.2,-9.72]}><boxGeometry args={[7.6,2.35,.12]}/><meshStandardMaterial color="#294b47" roughness={.68}/></mesh>
+      <Text position={[0,3.2,-9.62]} fontSize={.55} maxWidth={7} color="#f3eee2" anchorX="center" anchorY="middle">{isLibrary?"READ • LEARN • DISCOVER":isCafe?"HOSHINO CAFETERIA":"HOSHINO ACADEMY"}</Text>
+      <mesh position={[8.8,6.2,-9.58]}><cylinderGeometry args={[.42,.42,.1,32]}/><meshStandardMaterial color="#f3e7d0"/></mesh>
+      <Text position={[8.8,6.2,-9.48]} fontSize={.22} color="#4b4240" anchorX="center" anchorY="middle">10:10</Text>
+      {isLibrary ? <>
+        {[-8,-5,5,8].map(x=><group key={"shelf"+x} position={[x,0,-5]}>
+          <mesh position={[0,1.55,0]} castShadow><boxGeometry args={[1.8,3.1,.55]}/><meshStandardMaterial color="#684b3e"/></mesh>
+          {[.55,1.35,2.15].map(y=><mesh key={y} position={[0,y,.31]}><boxGeometry args={[1.68,.09,.08]}/><meshStandardMaterial color="#d2b48c"/></mesh>)}
+          {Array.from({length:12},(_,i)=><mesh key={i} position={[-.72+(i%6)*.28,.82+Math.floor(i/6)*.8,.36]}><boxGeometry args={[.18,.52,.12]}/><meshStandardMaterial color={["#a65c55","#557d83","#c49a57","#687b60"][i%4]}/></mesh>)}
+        </group>)}
+      </> : isCafe ? <>
+        {[-5,0,5].map(x=><group key={"table"+x} position={[x,0,-2]}>
+          <mesh position={[0,1.05,0]} castShadow><cylinderGeometry args={[1.05,1.05,.16,24]}/><meshStandardMaterial color="#b18b65"/></mesh>
+          <mesh position={[0,.53,0]}><cylinderGeometry args={[.12,.16,1,12]}/><meshStandardMaterial color="#615044"/></mesh>
+          {[-1.2,1.2].map(z=><mesh key={z} position={[0,.48,z]}><boxGeometry args={[.55,.9,.5]}/><meshStandardMaterial color="#5b6e69"/></mesh>)}
+        </group>)}
+      </> : <>
+        {[-5,0,5].map(x=><group key={x} position={[x,0,-4]}>
+          <mesh position={[0,1.35,0]} castShadow><boxGeometry args={[3.1,.18,1.5]}/><meshStandardMaterial color={desk}/></mesh>
+          <mesh position={[0,.68,.85]}><boxGeometry args={[.8,1.25,.12]}/><meshStandardMaterial color="#5b4851"/></mesh>
+          <mesh position={[0,.62,1.65]}><boxGeometry args={[1.1,.12,.9]}/><meshStandardMaterial color="#735b4e"/></mesh>
+          <mesh position={[-1.35,1.5,0]}><boxGeometry args={[.04,.02,1.2]}/><meshStandardMaterial color="#e9e0d2"/></mesh>
+        </group>)}
+        {[-5,0,5].map(x=><group key={"backdesk"+x} position={[x,0,2]}>
+          <mesh position={[0,1.35,0]} castShadow><boxGeometry args={[3.1,.18,1.5]}/><meshStandardMaterial color={desk}/></mesh>
+          <mesh position={[0,.68,.85]}><boxGeometry args={[.8,1.25,.12]}/><meshStandardMaterial color="#5b4851"/></mesh>
+          <mesh position={[0,.62,1.65]}><boxGeometry args={[1.1,.12,.9]}/><meshStandardMaterial color="#735b4e"/></mesh>
+        </group>)}
+      </>}
+      <InteractiveMarker position={[0,0,8.4]} label="EXIT" onSelect={onInteract} playerPosition={playerPosition}/>
+      <Player inside playerPosition={playerPosition} onPositionChange={onPositionChange}/>
+    </>;
+  }
   return <>
     <color attach="background" args={["#a9b9cb"]} />
     <fog attach="fog" args={["#a9b9cb",28,65]} />
@@ -393,6 +434,24 @@ function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInte
     </group>)}
     <mesh position={[0,.025,8]} receiveShadow><boxGeometry args={[20,.08,1.1]}/><meshStandardMaterial color="#b6aa98"/></mesh>
     <mesh position={[0,.025,26]} receiveShadow><boxGeometry args={[20,.08,1.1]}/><meshStandardMaterial color="#b6aa98"/></mesh>
+    {/* Formal courtyard plaza and landscaped borders */}
+    <mesh position={[0,.012,14]} receiveShadow><boxGeometry args={[22,.09,20]}/><meshStandardMaterial color="#b9aa96" roughness={.92}/></mesh>
+    {Array.from({length:11},(_,i)=><mesh key={"plaza-z"+i} position={[0,.065,5+i*1.8]}><boxGeometry args={[21.8,.025,.045]}/><meshStandardMaterial color="#968c7e"/></mesh>)}
+    {Array.from({length:12},(_,i)=><mesh key={"plaza-x"+i} position={[-10+i*1.8,.065,14]}><boxGeometry args={[.045,.025,19.8]}/><meshStandardMaterial color="#968c7e"/></mesh>)}
+    {[-10,10].map(x=><group key={"planter"+x} position={[x,0,15]}>
+      <mesh position={[0,.35,0]} castShadow><boxGeometry args={[2.3,.7,7.5]}/><meshStandardMaterial color="#a18f7c"/></mesh>
+      <mesh position={[0,.74,0]}><boxGeometry args={[2.05,.12,7.2]}/><meshStandardMaterial color="#526b4d"/></mesh>
+      {[-2.5,-1.2,0,1.2,2.5].map(z=><CampusShrub key={z} position={[0,.78,z]} scale={.52}/>)}
+    </group>)}
+    {[-7,7].map(x=><group key={"bench"+x} position={[x,0,11]}>
+      <mesh position={[0,.55,0]} castShadow><boxGeometry args={[2.5,.16,.65]}/><meshStandardMaterial color="#795a48"/></mesh>
+      <mesh position={[0,.95,-.25]}><boxGeometry args={[2.5,.65,.13]}/><meshStandardMaterial color="#795a48"/></mesh>
+      {[-.9,.9].map(z=><mesh key={z} position={[0,.27,z*.15]}><boxGeometry args={[.14,.55,.14]}/><meshStandardMaterial color="#45444a"/></mesh>)}
+    </group>)}
+    {/* Boundary walls and planted campus edges */}
+    {[-42,42].map(x=><mesh key={"boundary-x"+x} position={[x,1.1,0]} castShadow><boxGeometry args={[.45,2.2,88]}/><meshStandardMaterial color="#c2b7a8"/></mesh>)}
+    <mesh position={[0,1.1,-43]} castShadow><boxGeometry args={[84,.45,2.2]}/><meshStandardMaterial color="#c2b7a8"/></mesh>
+    {[-36,-28,-20,-12,12,20,28,36].map(x=><CampusShrub key={"edge"+x} position={[x,0,40]} scale={.72}/>)}
     {/* Main entrance gate */}
     <group position={[0,0,43]}>
       {[-5,5].map(x=><mesh key={x} position={[x,2.8,0]} castShadow><boxGeometry args={[1.2,5.6,1.2]}/><meshStandardMaterial color="#c8b7aa"/></mesh>)}
