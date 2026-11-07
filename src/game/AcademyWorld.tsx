@@ -47,7 +47,7 @@ function isBlocked(x:number,z:number) {
   return false;
 }
 
-function Player({ inside = false }: { inside?: boolean }) {
+function Player({ inside = false, playerPosition }: { inside?: boolean; playerPosition: { current: THREE.Vector3 } }) {
   const isInteriorBlocked = (x:number,z:number) => Math.abs(x)>10.25 || z < -9.25 || (z>9.25 && Math.abs(x)>3.1);
   const group = useRef<THREE.Group>(null);
   const torso = useRef<THREE.Group>(null);
@@ -129,6 +129,7 @@ function Player({ inside = false }: { inside?: boolean }) {
   }, []);
   useFrame((state, delta) => {
     if (!group.current) return;
+    playerPosition.current.copy(group.current.position);
     const dt=Math.min(delta,.05);
     const keys = pressed.current;
     const right = keys.has("KeyD") || keys.has("ArrowRight");
@@ -184,9 +185,9 @@ function Player({ inside = false }: { inside?: boolean }) {
   </group>;
 }
 
-function StudentNPC({ name, outfit, start, route, onTalk }: {
+function StudentNPC({ name, outfit, start, route, onTalk, playerPosition }: {
   name:string; outfit:string; start:[number,number,number];
-  route:[number,number,number][]; onTalk:(label:string)=>void;
+  route:[number,number,number][]; onTalk:(label:string)=>void; playerPosition:{current:THREE.Vector3};
 }) {
   const root=useRef<THREE.Group>(null);
   const leftLeg=useRef<THREE.Group>(null),rightLeg=useRef<THREE.Group>(null);
@@ -216,7 +217,7 @@ function StudentNPC({ name, outfit, start, route, onTalk }: {
     if(leftArm.current) leftArm.current.rotation.x=-swing*.65;
     if(rightArm.current) rightArm.current.rotation.x=swing*.65;
   });
-  return <group ref={root} position={start} onClick={(e)=>{e.stopPropagation();onTalk("TALK: "+name);}}>
+  return <group ref={root} position={start} onClick={(e)=>{e.stopPropagation();const nearby=!!root.current&&playerPosition.current.distanceTo(root.current.position)<=5.5;onTalk(nearby?"TALK: "+name:"TOO FAR — MOVE CLOSER");}}>
     <mesh position={[0,1.05,0]} castShadow><capsuleGeometry args={[.34,.85,5,10]}/><meshStandardMaterial color={outfit} roughness={.78}/></mesh>
     <mesh position={[0,1.95,0]} castShadow><sphereGeometry args={[.31,18,16]}/><meshStandardMaterial color="#edc5a8" roughness={.8}/></mesh>
     <mesh position={[0,2.1,.025]} castShadow><sphereGeometry args={[.32,16,10,0,Math.PI*2,0,Math.PI*.55]}/><meshStandardMaterial color="#343044" roughness={.95}/></mesh>
@@ -228,8 +229,8 @@ function StudentNPC({ name, outfit, start, route, onTalk }: {
   </group>;
 }
 
-function InteractiveMarker({ position, label, onSelect }: { position:[number,number,number]; label:string; onSelect:(label:string)=>void }) {
-  return <group position={position} onClick={(e)=>{e.stopPropagation();onSelect(label);}}>
+function InteractiveMarker({ position, label, onSelect, playerPosition }: { position:[number,number,number]; label:string; onSelect:(label:string)=>void; playerPosition:{current:THREE.Vector3} }) {
+  return <group position={position} onClick={(e)=>{e.stopPropagation();const target=new THREE.Vector3(...position);onSelect(playerPosition.current.distanceTo(target)<=6.5?label:"TOO FAR — MOVE CLOSER");}}>
     <Float speed={1.4} rotationIntensity={.08} floatIntensity={.18}>
       <mesh position={[0,1.3,0]}><sphereGeometry args={[.2,16,16]} /><meshBasicMaterial color="#d8a8ff" /></mesh>
       <Text position={[0,1.75,0]} fontSize={.35} color="#fff0d9" outlineWidth={.025} outlineColor="#201a30" anchorX="center">{label}</Text>
@@ -251,6 +252,7 @@ const NPC_ROUTES = {
 };
 
 function World({ onInteract, interior, gameMinutes }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number }) {
+  const playerPosition=useRef(new THREE.Vector3());
   if(interior) return <>
     <color attach="background" args={["#1b1b2b"]} />
     <fog attach="fog" args={["#1b1b2b",24,48]} />
@@ -274,8 +276,8 @@ function World({ onInteract, interior, gameMinutes }: { onInteract:(label:string
       <mesh position={[0,.68,.85]}><boxGeometry args={[.8,1.25,.12]}/><meshStandardMaterial color="#5b4851"/></mesh>
       <mesh position={[0,.62,1.65]}><boxGeometry args={[1.1,.12,.9]}/><meshStandardMaterial color="#735b4e"/></mesh>
     </group>)}
-    <InteractiveMarker position={[0,0,8.4]} label="EXIT" onSelect={onInteract}/>
-    <Player inside />
+    <InteractiveMarker position={[0,0,8.4]} label="EXIT" onSelect={onInteract} playerPosition={playerPosition}/>
+    <Player inside playerPosition={playerPosition}/>
   </>;
   return <>
     <color attach="background" args={["#a9b9cb"]} />
@@ -315,26 +317,26 @@ function World({ onInteract, interior, gameMinutes }: { onInteract:(label:string
     <mesh position={[0,.9,-5]}><cylinderGeometry args={[.08,.08,.8,12]} /><meshStandardMaterial color="#d5e7ee" /></mesh>
     {[-9,-6,6,9].map((x)=>[-10,-3,5,12].map((z)=><Tree key={x+"-"+z} position={[x,0,z]} scale={.8+(Math.abs(x+z)%3)*.12}/>))}
     {[-3,3].map((x)=><group key={x} position={[x,0,3]}><mesh position={[0,.55,0]} castShadow><boxGeometry args={[2.4,.18,.7]} /><meshStandardMaterial color="#795b50" /></mesh><mesh position={[-.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh><mesh position={[.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh></group>)}
-    <StudentNPC name="Aiko" outfit="#6c789f" start={[-3,0,15]} route={gameMinutes>=660&&gameMinutes<780?NPC_ROUTES.aikoLunch:gameMinutes>=780&&gameMinutes<900?NPC_ROUTES.aikoLibrary:NPC_ROUTES.aikoCourtyard} onTalk={onInteract}/>
-    <StudentNPC name="Ren" outfit="#9a6d78" start={[6,0,19]} route={gameMinutes>=840?NPC_ROUTES.renClubs:gameMinutes>=720?NPC_ROUTES.renSports:NPC_ROUTES.renCourtyard} onTalk={onInteract}/>
-    <StudentNPC name="Mika" outfit="#648b7d" start={[-9,0,19]} route={gameMinutes>=780&&gameMinutes<900?NPC_ROUTES.mikaLunch:gameMinutes>=540&&gameMinutes<660?NPC_ROUTES.mikaLibrary:NPC_ROUTES.mikaCourtyard} onTalk={onInteract}/>
-    <InteractiveMarker position={[0,0,-8.2]} label="ACADEMY ENTRANCE" onSelect={onInteract}/>
-    <InteractiveMarker position={[-12,0,2.7]} label="LIBRARY DOOR" onSelect={onInteract}/>
-    <InteractiveMarker position={[12,0,2.7]} label="CLASSROOM DOOR" onSelect={onInteract}/>
-    <InteractiveMarker position={[-29,0,-16.7]} label="CAFETERIA DOOR" onSelect={onInteract}/>
-    <InteractiveMarker position={[29,0,17.7]} label="GYM DOOR" onSelect={onInteract}/>
-    <InteractiveMarker position={[-29,0,17.7]} label="DORMITORY DOOR" onSelect={onInteract}/>
-    <InteractiveMarker position={[29,0,-31.7]} label="CLUB DOOR" onSelect={onInteract}/>
-    <InteractiveMarker position={[-12,0,2]} label="LIBRARY" onSelect={onInteract}/>
-    <InteractiveMarker position={[12,0,2]} label="CLASSROOMS" onSelect={onInteract}/>
-    <InteractiveMarker position={[0,0,-5]} label="FOUNTAIN" onSelect={onInteract}/>
-    <InteractiveMarker position={[-29,0,-12]} label="CAFETERIA" onSelect={onInteract}/>
-    <InteractiveMarker position={[29,0,22]} label="GYMNASIUM" onSelect={onInteract}/>
-    <InteractiveMarker position={[-29,0,22]} label="DORMITORY" onSelect={onInteract}/>
-    <InteractiveMarker position={[29,0,-11]} label="SPORTS FIELD" onSelect={onInteract}/>
-    <InteractiveMarker position={[0,0,39]} label="MAIN GATE" onSelect={onInteract}/>
-    <InteractiveMarker position={[29,0,-28]} label="ARTS & CLUBS" onSelect={onInteract}/>
-    <Player />
+    <StudentNPC name="Aiko" outfit="#6c789f" start={[-3,0,15]} route={gameMinutes>=660&&gameMinutes<780?NPC_ROUTES.aikoLunch:gameMinutes>=780&&gameMinutes<900?NPC_ROUTES.aikoLibrary:NPC_ROUTES.aikoCourtyard} onTalk={onInteract} playerPosition={playerPosition}/>
+    <StudentNPC name="Ren" outfit="#9a6d78" start={[6,0,19]} route={gameMinutes>=840?NPC_ROUTES.renClubs:gameMinutes>=720?NPC_ROUTES.renSports:NPC_ROUTES.renCourtyard} onTalk={onInteract} playerPosition={playerPosition}/>
+    <StudentNPC name="Mika" outfit="#648b7d" start={[-9,0,19]} route={gameMinutes>=780&&gameMinutes<900?NPC_ROUTES.mikaLunch:gameMinutes>=540&&gameMinutes<660?NPC_ROUTES.mikaLibrary:NPC_ROUTES.mikaCourtyard} onTalk={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[0,0,-8.2]} label="ACADEMY ENTRANCE" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[-12,0,2.7]} label="LIBRARY DOOR" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[12,0,2.7]} label="CLASSROOM DOOR" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[-29,0,-16.7]} label="CAFETERIA DOOR" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[29,0,17.7]} label="GYM DOOR" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[-29,0,17.7]} label="DORMITORY DOOR" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[29,0,-31.7]} label="CLUB DOOR" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[-12,0,2]} label="LIBRARY" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[12,0,2]} label="CLASSROOMS" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[0,0,-5]} label="FOUNTAIN" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[-29,0,-12]} label="CAFETERIA" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[29,0,22]} label="GYMNASIUM" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[-29,0,22]} label="DORMITORY" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[29,0,-11]} label="SPORTS FIELD" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[0,0,39]} label="MAIN GATE" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[29,0,-28]} label="ARTS & CLUBS" onSelect={onInteract} playerPosition={playerPosition}/>
+    <Player playerPosition={playerPosition}/>
   </>;
 }
 
