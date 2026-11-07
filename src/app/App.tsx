@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AcademyWorld } from "../game/AcademyWorld";
 import VirtualJoystick from "../components/ui/VirtualJoystick";
 import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "../storage/settings";
@@ -13,10 +13,15 @@ export default function App() {
   const [interior,setInterior]=useState<string|null>(null);
   const [dialogue,setDialogue]=useState("");
   const [savedAt,setSavedAt]=useState<number|null>(()=>loadGame()?.savedAt??null);
-  const persistGame=()=>{window.dispatchEvent(new Event("tsc-save-position"));const saved=saveGame(interior);setSavedAt(saved.savedAt);setNotice("Journey saved on this device.");};
-  const resumeGame=()=>{const saved=loadGame();if(!saved){setNotice("No saved journey yet. Start a new game first.");return;}setInterior(saved.interior);setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));setSavedAt(saved.savedAt);};
-  const startNewGame=()=>{localStorage.removeItem("tsc-player-position-v1");localStorage.removeItem("tsc-save-v1");setSavedAt(null);setInterior(null);setInteraction("");setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));};
+  const [gameMinutes,setGameMinutes]=useState<number>(()=>loadGame()?.gameMinutes??465);
+  const persistGame=()=>{window.dispatchEvent(new Event("tsc-save-position"));const saved=saveGame(interior,gameMinutes);setSavedAt(saved.savedAt);setNotice("Journey saved on this device.");};
+  const resumeGame=()=>{const saved=loadGame();if(!saved){setNotice("No saved journey yet. Start a new game first.");return;}setInterior(saved.interior);setGameMinutes(saved.gameMinutes);setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));setSavedAt(saved.savedAt);};
+  const startNewGame=()=>{localStorage.removeItem("tsc-player-position-v1");localStorage.removeItem("tsc-save-v1");setSavedAt(null);setGameMinutes(465);setInterior(null);setInteraction("");setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));};
   const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
+  useEffect(()=>{if(screen!=="game")return;const timer=window.setInterval(()=>setGameMinutes(value=>(value+1)%1440),1000);return()=>window.clearInterval(timer);},[screen]);
+  const formatGameTime=(minutes:number)=>{const hour=Math.floor(minutes/60)%24;const minute=minutes%60;return `${String(hour%12||12).padStart(2,"0")}:${String(minute).padStart(2,"0")} ${hour>=12?"PM":"AM"}`;};
+  const schedule=[{at:480,end:540,name:"Homeroom",place:"Classrooms"},{at:540,end:600,name:"Mathematics",place:"Classrooms"},{at:600,end:660,name:"Science",place:"Classrooms"},{at:660,end:720,name:"Morning break",place:"Courtyard"},{at:720,end:780,name:"Lunch",place:"Cafeteria"},{at:780,end:840,name:"English",place:"Classrooms"},{at:840,end:900,name:"Clubs & activities",place:"Arts & Clubs"},{at:900,end:960,name:"Free time",place:"Campus"}];
+  const currentPeriod=schedule.find(item=>gameMinutes>=item.at&&gameMinutes<item.end)??(gameMinutes<480?{name:"Before classes",place:"Courtyard"}:{name:"School day finished",place:"Campus"});
   const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");setInterior(null);setDialogue("");};
   return <main className="game-root">
     {(screen==="menu"||screen==="game")&&<div className="world-layer"><AcademyWorld onInteract={setInteraction} interior={interior}/></div>}
@@ -36,7 +41,7 @@ export default function App() {
     </section>}
     {screen==="game"&&<section className="game-hud">
       <header className="hud-top"><div className="brand-mark">SC <span>THE SCHOOL CHRONICLES</span></div><div className="hud-location">HOSHINO ACADEMY <i>•</i> MAIN COURTYARD</div><div className="hud-actions"><button onClick={persistGame}>SAVE <span>◇</span></button><button onClick={()=>{persistGame();goMenu();}}>PAUSE / MENU <span>Ⅱ</span></button></div></header>
-      <div className="objective"><small>YOUR FIRST DAY · 08:00 AM</small><strong>Explore the academy</strong><span>Homeroom → Mathematics → Science → Break</span></div>
+      <div className="objective"><small>DAY 01 · {formatGameTime(gameMinutes)} · {currentPeriod.name.toUpperCase()}</small><strong>{gameMinutes>=480&&gameMinutes<960?`Now: ${currentPeriod.name}`:"Explore the academy"}</strong><span>Next destination: {currentPeriod.place} · 1 game minute / real second</span></div>
       {(interaction||interior)&&<div className="interaction-card"><small>{interior?"BUILDING INTERIOR":"YOU DISCOVERED"}</small><strong>{interior??interaction}</strong><p>{({LIBRARY:"A quiet place filled with books and stories.",CLASSROOMS:"The heart of academy life. Classes begin here.",FOUNTAIN:"A peaceful fountain in the centre of campus.",CAFETERIA:"Meet friends and take a break between classes.",GYMNASIUM:"The indoor sports and fitness centre.",DORMITORY:"Student residence and common rooms.", "SPORTS FIELD":"Outdoor grounds for games and school tournaments.","MAIN GATE":"The main entrance to Hoshino Academy.","ARTS & CLUBS":"Creative studios and after-school club rooms.","ACADEMY ENTRANCE":"Main entrance. The inside area is being prepared.","LIBRARY DOOR":"Library entrance found. Interior access is being built.","CLASSROOM DOOR":"Classroom wing entrance found. Interior access is being built.","CAFETERIA DOOR":"Cafeteria entrance found. Interior access is being built.","GYM DOOR":"Gymnasium entrance found. Interior access is being built.","DORMITORY DOOR":"Dormitory entrance found. Interior access is being built.","CLUB DOOR":"Club wing entrance found. Interior access is being built."} as Record<string,string>)[interaction] ?? "Explore this part of the academy."}</p>{interaction.startsWith("TALK: ")&&<div className="npc-dialogue">
           <p>{dialogue || "A student from Hoshino Academy is ready to chat."}</p>
           <div className="dialogue-choices">
@@ -52,7 +57,7 @@ export default function App() {
         <button onClick={()=>setInteraction("")}>CLOSE</button></div>}
       <div className="controls-help"><span>W A S D <small>MOVE</small></span><span>SHIFT <small>RUN</small></span><span>CLICK GLOWING MARKERS <small>INTERACT</small></span></div>
       <div className="joystick-controls"><VirtualJoystick side="move" label="MOVE"/><div className="camera-drag-hint">DRAG TO LOOK</div></div>
-      <div className="game-footer"><span>DAY 01</span><span>MONDAY · HOMEROOM <span>ACADEMY LIFE SIMULATION</span></span></div>
+      <div className="game-footer"><span>DAY 01 · {formatGameTime(gameMinutes)}</span><span>MONDAY · {currentPeriod.name.toUpperCase()} <span>ACADEMY LIFE SIMULATION</span></span></div>
       {notice&&<div className="toast">{notice}<button onClick={()=>setNotice("")}>×</button></div>}
     </section>}
     {screen==="settings"&&<section className="panel-screen"><button className="back" onClick={goMenu}>← BACK TO TITLE</button><p className="eyebrow">PREFERENCES</p><h2>SETTINGS</h2><div className="settings-card">
