@@ -70,3 +70,22 @@
 .progress-track{height:5px;margin:9px 0 7px;border-radius:8px;background:#ffffff20;overflow:hidden}
 .progress-track i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#a878c6,#e5c4f5);transition:width .25s ease}
 @media(max-width:760px){.progress-card{top:64px;left:12px;width:145px;padding:9px 10px}.progress-card strong{font-size:14px}.progress-card small{font-size:6px}.progress-card span{font-size:8px}.mission-card{top:156px}}
+
+/* Live campus minimap */
+.mini-map{position:absolute;top:278px;right:28px;width:190px;padding:10px;border:1px solid #d9b4e966;background:#111323df;backdrop-filter:blur(10px);box-shadow:0 8px 26px #0005;color:#f4eaf7}
+.mini-map-heading{display:flex;justify-content:space-between;margin-bottom:8px;color:#e1baf3;font-size:8px;letter-spacing:.18em}
+.mini-map-heading span{color:#a8cdb6}
+.mini-map-grid{position:relative;height:142px;overflow:hidden;border:1px solid #ffffff2b;background:linear-gradient(135deg,#425e4c,#526b58)}
+.mini-map-grid:before,.mini-map-grid:after{content:"";position:absolute;background:#c3b7a5a8}
+.mini-map-grid:before{left:43%;top:0;width:13%;height:100%}
+.mini-map-grid:after{left:0;top:42%;height:13%;width:100%}
+.map-road{position:absolute;z-index:1;background:#d8cbb5}
+.map-road-v1,.map-road-v2{top:0;width:3px;height:100%}.map-road-v1{left:25%}.map-road-v2{right:25%}
+.map-road-h1{left:0;right:0;top:72%;height:3px}
+.map-zone,.map-point,.map-player{position:absolute;z-index:2;transform:translate(-50%,-50%);display:grid;place-items:center;border-radius:4px;font-size:7px;font-weight:700}
+.map-zone{width:19px;height:15px;background:#c5b4d5;color:#30263c}
+.map-point{width:13px;height:13px;border:1px solid #fff8;background:#55486b;color:#fff}
+.map-player{width:11px;height:11px;border:2px solid #fff;border-radius:50%;background:#efb45e;box-shadow:0 0 0 4px #efb45e55}
+.mini-map-legend{margin-top:7px;color:#cbbdd2;font-size:7px;letter-spacing:.06em;white-space:nowrap}
+@media(max-width:760px){.mini-map{top:294px;right:12px;width:150px;padding:7px}.mini-map-grid{height:108px}.mini-map-legend{font-size:6px}.mission-card{width:178px}}
+@media(max-height:700px) and (max-width:760px){.mini-map{top:270px}.mini-map-grid{height:88px}}
