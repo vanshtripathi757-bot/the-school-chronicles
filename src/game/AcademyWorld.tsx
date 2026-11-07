@@ -7,26 +7,49 @@ import { loadPlayerPosition, savePlayerPosition } from "../storage/progress";
 
 
 function AcademyBuilding({ position, label, color = "#d8d0c4" }: { position: [number,number,number]; label: string; color?: string }) {
+  const glass="#6e9eae", trim="#f2e5ce", roof="#343744", wood="#72564a";
   return <group position={position}>
-    <mesh position={[0,.22,0]} castShadow receiveShadow><boxGeometry args={[11.8,.44,5.8]}/><meshStandardMaterial color="#756c68" roughness={.95}/></mesh>
-    <mesh position={[0,2.35,0]} castShadow receiveShadow><boxGeometry args={[11,4.25,5]}/><meshStandardMaterial color={color} roughness={.82}/></mesh>
-    <mesh position={[0,4.5,0]} castShadow><boxGeometry args={[11.5,.3,5.5]}/><meshStandardMaterial color="#4b4143" roughness={.8}/></mesh>
-    <mesh position={[0,5.02,-1.35]} rotation={[-.42,0,0]} castShadow><boxGeometry args={[11.8,.34,3.45]}/><meshStandardMaterial color="#514653" roughness={.88}/></mesh>
-    <mesh position={[0,5.02,1.35]} rotation={[.42,0,0]} castShadow><boxGeometry args={[11.8,.34,3.45]}/><meshStandardMaterial color="#514653" roughness={.88}/></mesh>
-    <mesh position={[0,4.62,2.56]}><boxGeometry args={[11.2,.18,.16]}/><meshStandardMaterial color="#f0dfc5" roughness={.65}/></mesh>
-    {[-5,-2.5,2.5,5].map(x=><group key={x} position={[x,2.35,2.57]}>
-      <mesh castShadow><boxGeometry args={[1.35,1.75,.16]}/><meshStandardMaterial color="#f0dfc5" roughness={.65}/></mesh>
-      <mesh position={[0,0,.1]}><boxGeometry args={[1.08,1.48,.08]}/><meshStandardMaterial color="#456477" metalness={.28} roughness={.2}/></mesh>
-      <mesh position={[0,0,.16]}><boxGeometry args={[.055,1.48,.04]}/><meshStandardMaterial color="#e9d9bf"/></mesh>
-      <mesh position={[0,0,.16]}><boxGeometry args={[1.08,.055,.04]}/><meshStandardMaterial color="#e9d9bf"/></mesh>
-      <mesh position={[0,-.93,.12]}><boxGeometry args={[1.55,.12,.28]}/><meshStandardMaterial color="#7c6252"/></mesh>
+    {/* raised stone foundation and front approach */}
+    <mesh position={[0,.22,0]} castShadow receiveShadow><boxGeometry args={[12.2,.44,6.2]}/><meshStandardMaterial color="#77716b" roughness={.94}/></mesh>
+    <mesh position={[0,.55,0]} castShadow><boxGeometry args={[11.8,.24,5.9]}/><meshStandardMaterial color="#d6c8b4" roughness={.86}/></mesh>
+    {/* two-storey main structure */}
+    <mesh position={[0,3.35,0]} castShadow receiveShadow><boxGeometry args={[11.2,5.6,5.25]}/><meshStandardMaterial color={color} roughness={.78}/></mesh>
+    <mesh position={[0,.92,2.68]}><boxGeometry args={[11.25,.22,.24]}/><meshStandardMaterial color={trim}/></mesh>
+    <mesh position={[0,3.48,2.68]}><boxGeometry args={[11.4,.2,.24]}/><meshStandardMaterial color={trim}/></mesh>
+    <mesh position={[0,6.12,0]} castShadow><boxGeometry args={[11.7,.3,5.7]}/><meshStandardMaterial color={roof} roughness={.78}/></mesh>
+    {/* pitched roof with ridge and eaves */}
+    <mesh position={[0,6.62,-1.32]} rotation={[-.43,0,0]} castShadow><boxGeometry args={[12.2,.22,3.45]}/><meshStandardMaterial color={roof} roughness={.72}/></mesh>
+    <mesh position={[0,6.62,1.32]} rotation={[.43,0,0]} castShadow><boxGeometry args={[12.2,.22,3.45]}/><meshStandardMaterial color={roof} roughness={.72}/></mesh>
+    <mesh position={[0,7.25,0]} castShadow><boxGeometry args={[12.25,.18,.2]}/><meshStandardMaterial color="#62575b"/></mesh>
+    {/* upper and lower window bays with real frames and mullions */}
+    {[1.95,4.55].map(y=>[-4.55,-2.65,2.65,4.55].map(x=><group key={y+"-"+x} position={[x,y,2.66]}>
+      <mesh castShadow><boxGeometry args={[1.35,1.65,.16]}/><meshStandardMaterial color={trim}/></mesh>
+      <mesh position={[0,0,.1]}><boxGeometry args={[1.1,1.4,.055]}/><meshStandardMaterial color={glass} metalness={.22} roughness={.18}/></mesh>
+      <mesh position={[0,0,.15]}><boxGeometry args={[.055,1.4,.045]}/><meshStandardMaterial color={trim}/></mesh>
+      <mesh position={[0,0,.15]}><boxGeometry args={[1.1,.055,.045]}/><meshStandardMaterial color={trim}/></mesh>
+      <mesh position={[0,-.91,.16]}><boxGeometry args={[1.55,.11,.3]}/><meshStandardMaterial color={wood}/></mesh>
+    </group>))}
+    {/* central entrance, canopy and stairs */}
+    <mesh position={[0,1.85,2.69]} castShadow><boxGeometry args={[1.8,2.55,.2]}/><meshStandardMaterial color="#493d43"/></mesh>
+    <mesh position={[0,1.86,2.82]}><boxGeometry args={[1.43,2.22,.08]}/><meshStandardMaterial color="#a5c1c2" metalness={.16} roughness={.25}/></mesh>
+    <mesh position={[.64,1.86,2.9]}><boxGeometry args={[.035,2.2,.035]}/><meshStandardMaterial color={trim}/></mesh>
+    <mesh position={[0,3.22,2.98]} castShadow><boxGeometry args={[2.5,.18,1.15]}/><meshStandardMaterial color={roof}/></mesh>
+    <mesh position={[0,.48,3.45]}><boxGeometry args={[3.4,.22,1.25]}/><meshStandardMaterial color="#b8aa98"/></mesh>
+    <mesh position={[0,.25,3.75]}><boxGeometry args={[4,.22,.8]}/><meshStandardMaterial color="#a99a88"/></mesh>
+    {/* veranda columns and balcony rail */}
+    {[-5.25,5.25].map(x=><mesh key={x} position={[x,2.8,2.95]} castShadow><boxGeometry args={[.3,4.6,.32]}/><meshStandardMaterial color={trim}/></mesh>)}
+    <mesh position={[0,3.75,3.02]}><boxGeometry args={[10.7,.1,.1]}/><meshStandardMaterial color={trim}/></mesh>
+    {Array.from({length:13},(_,i)=><mesh key={i} position={[-5+i*.83,3.48,3.02]}><cylinderGeometry args={[.035,.035,.55,6]}/><meshStandardMaterial color={trim}/></mesh>)}
+    {/* school name plaque */}
+    <mesh position={[0,5.65,2.68]}><boxGeometry args={[4.4,.62,.16]}/><meshStandardMaterial color="#384a55" roughness={.5}/></mesh>
+    <Text position={[0,5.66,2.78]} fontSize={.25} maxWidth={4.1} color="#fff0d5" anchorX="center" anchorY="middle">{label}</Text>
+    {/* corner pilasters and wall-mounted details */}
+    {[-5.4,5.4].map(x=><group key={"pilaster"+x} position={[x,3.35,2.67]}>
+      <mesh><boxGeometry args={[.24,5.5,.28]}/><meshStandardMaterial color="#e8d9c5"/></mesh>
+      <mesh position={[0,2.78,0]}><boxGeometry args={[.42,.16,.38]}/><meshStandardMaterial color="#bcae9d"/></mesh>
     </group>)}
-    {[-4.9,4.9].map(x=><mesh key={x} position={[x,2.25,2.9]} castShadow><boxGeometry args={[.32,4.25,.34]}/><meshStandardMaterial color="#eee0c9" roughness={.72}/></mesh>)}
-    <mesh position={[0,1.55,2.62]} castShadow><boxGeometry args={[2.05,2.7,.2]}/><meshStandardMaterial color="#51434a" roughness={.75}/></mesh>
-    <mesh position={[0,2.88,2.76]}><boxGeometry args={[2.15,.12,.08]}/><meshStandardMaterial color="#d9c4a5"/></mesh>
-    <mesh position={[0,3.85,2.68]}><boxGeometry args={[3.8,.55,.12]}/><meshStandardMaterial color="#3c5260" roughness={.7}/></mesh>
-    <Text position={[0,3.87,2.78]} fontSize={.28} color="#f8e9d2" anchorX="center" anchorY="middle">{label}</Text>
-    {[-3.8,-1.9,1.9,3.8].map(x=><mesh key={x} position={[x,.9,2.62]} castShadow><boxGeometry args={[.12,1.8,.16]}/><meshStandardMaterial color="#d9c9b4"/></mesh>)}
+    <mesh position={[-5.64,1.35,.2]}><boxGeometry args={[.12,.9,1.2]}/><meshStandardMaterial color="#a9b8ad"/></mesh>
+    <mesh position={[5.64,1.35,.2]}><boxGeometry args={[.12,.9,1.2]}/><meshStandardMaterial color="#a9b8ad"/></mesh>
   </group>;
 }
 function Tree({ position, scale = 1 }: { position: [number,number,number]; scale?: number }) {
@@ -203,23 +226,35 @@ function Player({ inside = false, playerPosition, onPositionChange }: { inside?:
   });
   return <group ref={group} position={[initialPosition.current.x,0,initialPosition.current.z]}>
     <group ref={torso}>
-      <mesh position={[0,1.22,0]} castShadow><capsuleGeometry args={[.32,.72,7,14]}/><meshStandardMaterial color="#24364d" roughness={.72}/></mesh>
-      <mesh position={[0,1.52,.015]} castShadow><boxGeometry args={[.42,.48,.34]}/><meshStandardMaterial color="#f2eee4" roughness={.8}/></mesh>
-      <mesh position={[0,1.48,.205]} castShadow><coneGeometry args={[.075,.42,4]}/><meshStandardMaterial color="#9b4055" roughness={.55}/></mesh>
-      <mesh position={[0,1.91,0]} castShadow><sphereGeometry args={[.32,28,24]}/><meshStandardMaterial color="#e8b99d" roughness={.82}/></mesh>
-      <mesh position={[0,2.08,-.035]} castShadow><sphereGeometry args={[.345,24,18,0,Math.PI*2,0,Math.PI*.62]}/><meshStandardMaterial color="#302b35" roughness={.92}/></mesh>
-      <mesh position={[-.19,2.01,.08]} rotation={[0,0,-.35]} castShadow><capsuleGeometry args={[.095,.35,5,8]}/><meshStandardMaterial color="#302b35" roughness={.9}/></mesh>
-      <mesh position={[.18,2.01,.08]} rotation={[0,0,.35]} castShadow><capsuleGeometry args={[.095,.35,5,8]}/><meshStandardMaterial color="#302b35" roughness={.9}/></mesh>
-      {[-.115,.115].map(x=><group key={x} position={[x,1.96,.285]}><mesh><sphereGeometry args={[.043,12,12]}/><meshStandardMaterial color="#fff8ee"/></mesh><mesh position={[0,0,.035]}><sphereGeometry args={[.022,10,10]}/><meshStandardMaterial color="#343b4d"/></mesh></group>)}
-      <mesh position={[0,1.86,.31]}><sphereGeometry args={[.025,8,8]}/><meshStandardMaterial color="#bd826e"/></mesh>
-      <mesh position={[0,1.77,.295]}><boxGeometry args={[.09,.018,.02]}/><meshStandardMaterial color="#995d61"/></mesh>
-      <mesh position={[-.34,1.18,0]} castShadow><boxGeometry args={[.16,.64,.28]}/><meshStandardMaterial color="#24364d"/></mesh>
-      <mesh position={[.34,1.18,0]} castShadow><boxGeometry args={[.16,.64,.28]}/><meshStandardMaterial color="#24364d"/></mesh>
-      <mesh position={[0,1.77,.18]}><boxGeometry args={[.12,.13,.05]}/><meshStandardMaterial color="#d8c6a5"/></mesh>
-      <group ref={leftArm} position={[-.4,1.55,0]}><mesh position={[0,-.28,0]} castShadow><capsuleGeometry args={[.105,.48,5,10]}/><meshStandardMaterial color="#24364d"/></mesh><mesh position={[0,-.57,.02]}><sphereGeometry args={[.105,12,12]}/><meshStandardMaterial color="#e8b99d"/></mesh></group>
-      <group ref={rightArm} position={[.4,1.55,0]}><mesh position={[0,-.28,0]} castShadow><capsuleGeometry args={[.105,.48,5,10]}/><meshStandardMaterial color="#24364d"/></mesh><mesh position={[0,-.57,.02]}><sphereGeometry args={[.105,12,12]}/><meshStandardMaterial color="#e8b99d"/></mesh></group>
-      <group ref={leftLeg} position={[-.18,.82,0]}><mesh position={[0,-.34,0]} castShadow><capsuleGeometry args={[.13,.5,5,10]}/><meshStandardMaterial color="#35384b"/></mesh><mesh position={[0,-.62,.1]} castShadow><boxGeometry args={[.27,.14,.42]}/><meshStandardMaterial color="#171d29"/></mesh></group>
-      <group ref={rightLeg} position={[.18,.82,0]}><mesh position={[0,-.34,0]} castShadow><capsuleGeometry args={[.13,.5,5,10]}/><meshStandardMaterial color="#35384b"/></mesh><mesh position={[0,-.62,.1]} castShadow><boxGeometry args={[.27,.14,.42]}/><meshStandardMaterial color="#171d29"/></mesh></group>
+      {/* backpack */}
+      <mesh position={[0,1.2,-.27]} castShadow><boxGeometry args={[.48,.62,.22]}/><meshStandardMaterial color="#76546c" roughness={.8}/></mesh>
+      <mesh position={[0,1.45,-.4]}><boxGeometry args={[.32,.2,.04]}/><meshStandardMaterial color="#d8b6c8"/></mesh>
+      {/* tailored blazer and shirt */}
+      <mesh position={[0,1.2,0]} castShadow><capsuleGeometry args={[.31,.72,8,18]}/><meshStandardMaterial color="#26354d" roughness={.62}/></mesh>
+      <mesh position={[0,1.49,.13]} castShadow><boxGeometry args={[.34,.5,.29]}/><meshStandardMaterial color="#f3eee5" roughness={.82}/></mesh>
+      <mesh position={[0,1.47,.29]}><coneGeometry args={[.055,.36,4]}/><meshStandardMaterial color="#a64f68" roughness={.55}/></mesh>
+      <mesh position={[-.13,1.57,.2]} rotation={[0,0,-.4]}><boxGeometry args={[.18,.18,.08]}/><meshStandardMaterial color="#f3eee5"/></mesh>
+      <mesh position={[.13,1.57,.2]} rotation={[0,0,.4]}><boxGeometry args={[.18,.18,.08]}/><meshStandardMaterial color="#f3eee5"/></mesh>
+      <mesh position={[0,1.18,.29]}><boxGeometry args={[.08,.08,.035]}/><meshStandardMaterial color="#d5b879" metalness={.55}/></mesh>
+      {/* head and hair */}
+      <mesh position={[0,1.93,0]} castShadow><sphereGeometry args={[.3,32,28]}/><meshStandardMaterial color="#e7b99d" roughness={.76}/></mesh>
+      <mesh position={[0,2.1,-.035]} castShadow><sphereGeometry args={[.325,32,24,0,Math.PI*2,0,Math.PI*.59]}/><meshStandardMaterial color="#292832" roughness={.88}/></mesh>
+      {[-.23,-.12,0,.12,.23].map((x,i)=><mesh key={i} position={[x,2.02,.11]} rotation={[0,0,(i-2)*-.18]} castShadow><capsuleGeometry args={[.075,.27+(i%2)*.1,6,10]}/><meshStandardMaterial color="#292832" roughness={.9}/></mesh>)}
+      {[-.105,.105].map(x=><group key={x} position={[x,1.96,.274]}>
+        <mesh><sphereGeometry args={[.052,16,16]}/><meshStandardMaterial color="#fff9ef"/></mesh>
+        <mesh position={[0,0,.041]}><sphereGeometry args={[.026,12,12]}/><meshStandardMaterial color="#303747"/></mesh>
+        <mesh position={[0,.035,.045]}><boxGeometry args={[.09,.018,.018]}/><meshStandardMaterial color="#4a3540"/></mesh>
+      </group>)}
+      <mesh position={[0,1.87,.29]}><sphereGeometry args={[.022,10,10]}/><meshStandardMaterial color="#bd826e"/></mesh>
+      <mesh position={[0,1.78,.285]}><boxGeometry args={[.075,.016,.018]}/><meshStandardMaterial color="#985e68"/></mesh>
+      <mesh position={[-.3,1.92,0]}><sphereGeometry args={[.07,12,12]}/><meshStandardMaterial color="#e7b99d"/></mesh>
+      <mesh position={[.3,1.92,0]}><sphereGeometry args={[.07,12,12]}/><meshStandardMaterial color="#e7b99d"/></mesh>
+      {/* articulated sleeves and hands */}
+      <group ref={leftArm} position={[-.39,1.54,0]}><mesh position={[0,-.27,0]} castShadow><capsuleGeometry args={[.105,.45,7,12]}/><meshStandardMaterial color="#26354d"/></mesh><mesh position={[0,-.55,.025]}><sphereGeometry args={[.095,14,14]}/><meshStandardMaterial color="#e7b99d"/></mesh><mesh position={[0,-.12,.01]}><torusGeometry args={[.105,.025,6,12]}/><meshStandardMaterial color="#f1e9de"/></mesh></group>
+      <group ref={rightArm} position={[.39,1.54,0]}><mesh position={[0,-.27,0]} castShadow><capsuleGeometry args={[.105,.45,7,12]}/><meshStandardMaterial color="#26354d"/></mesh><mesh position={[0,-.55,.025]}><sphereGeometry args={[.095,14,14]}/><meshStandardMaterial color="#e7b99d"/></mesh><mesh position={[0,-.12,.01]}><torusGeometry args={[.105,.025,6,12]}/><meshStandardMaterial color="#f1e9de"/></mesh></group>
+      {/* trousers, knees and polished shoes */}
+      <group ref={leftLeg} position={[-.17,.82,0]}><mesh position={[0,-.34,0]} castShadow><capsuleGeometry args={[.13,.5,7,12]}/><meshStandardMaterial color="#34384b" roughness={.7}/></mesh><mesh position={[0,-.62,.1]} castShadow><boxGeometry args={[.28,.15,.44]}/><meshStandardMaterial color="#171b27" roughness={.35}/></mesh><mesh position={[0,-.52,.17]}><boxGeometry args={[.2,.025,.08]}/><meshStandardMaterial color="#c7b6a2" metalness={.4}/></mesh></group>
+      <group ref={rightLeg} position={[.17,.82,0]}><mesh position={[0,-.34,0]} castShadow><capsuleGeometry args={[.13,.5,7,12]}/><meshStandardMaterial color="#34384b" roughness={.7}/></mesh><mesh position={[0,-.62,.1]} castShadow><boxGeometry args={[.28,.15,.44]}/><meshStandardMaterial color="#171b27" roughness={.35}/></mesh><mesh position={[0,-.52,.17]}><boxGeometry args={[.2,.025,.08]}/><meshStandardMaterial color="#c7b6a2" metalness={.4}/></mesh></group>
     </group>
   </group>;
 }
@@ -256,23 +291,25 @@ function StudentNPC({ name, outfit, start, route, onTalk, playerPosition }: {
     if(leftArm.current) leftArm.current.rotation.x=-swing*.65;
     if(rightArm.current) rightArm.current.rotation.x=swing*.65;
   });
-  const hairColor=name==="Aiko"?"#493342":name==="Ren"?"#3b302b":"#6c5140";
-  const skinColor=name==="Mika"?"#dba98c":"#e8b99d";
+  const hairColor=name==="Aiko"?"#3a273a":name==="Ren"?"#292b32":"#79533e";
+  const skinColor=name==="Mika"?"#d7a184":"#e7b99d";
+  const accent=name==="Ren"?"#6d91ad":name==="Mika"?"#6b9b83":"#b45d79";
   return <group ref={root} position={start} onClick={(e)=>{e.stopPropagation();const nearby=!!root.current&&playerPosition.current.distanceTo(root.current.position)<=5.5;onTalk(nearby?"TALK: "+name:"TOO FAR — MOVE CLOSER");}}>
-    <mesh position={[0,1.15,0]} castShadow><capsuleGeometry args={[.31,.78,7,14]}/><meshStandardMaterial color={outfit} roughness={.75}/></mesh>
-    <mesh position={[0,1.48,.02]} castShadow><boxGeometry args={[.39,.46,.32]}/><meshStandardMaterial color="#f2eee6"/></mesh>
-    <mesh position={[0,1.45,.2]}><coneGeometry args={[.065,.35,4]}/><meshStandardMaterial color={name==="Ren"?"#456b87":"#9b4055"}/></mesh>
-    <mesh position={[0,1.94,0]} castShadow><sphereGeometry args={[.3,28,24]}/><meshStandardMaterial color={skinColor} roughness={.82}/></mesh>
-    <mesh position={[0,2.1,-.025]} castShadow><sphereGeometry args={[.32,24,18,0,Math.PI*2,0,Math.PI*.62]}/><meshStandardMaterial color={hairColor} roughness={.92}/></mesh>
-    <mesh position={[-.18,2.02,.08]} rotation={[0,0,-.3]} castShadow><capsuleGeometry args={[.09,.3,5,8]}/><meshStandardMaterial color={hairColor}/></mesh>
-    <mesh position={[.18,2.02,.08]} rotation={[0,0,.3]} castShadow><capsuleGeometry args={[.09,.3,5,8]}/><meshStandardMaterial color={hairColor}/></mesh>
-    {[-.11,.11].map(x=><group key={x} position={[x,1.99,.27]}><mesh><sphereGeometry args={[.04,12,12]}/><meshStandardMaterial color="#fff8ed"/></mesh><mesh position={[0,0,.032]}><sphereGeometry args={[.02,10,10]}/><meshStandardMaterial color="#33394b"/></mesh></group>)}
-    <mesh position={[0,1.87,.29]}><sphereGeometry args={[.022,8,8]}/><meshStandardMaterial color="#bd826e"/></mesh>
-    <group ref={leftArm} position={[-.39,1.52,0]}><mesh position={[0,-.28,0]} castShadow><capsuleGeometry args={[.09,.44,5,9]}/><meshStandardMaterial color={outfit}/></mesh><mesh position={[0,-.55,.02]}><sphereGeometry args={[.09,12,12]}/><meshStandardMaterial color={skinColor}/></mesh></group>
-    <group ref={rightArm} position={[.39,1.52,0]}><mesh position={[0,-.28,0]} castShadow><capsuleGeometry args={[.09,.44,5,9]}/><meshStandardMaterial color={outfit}/></mesh><mesh position={[0,-.55,.02]}><sphereGeometry args={[.09,12,12]}/><meshStandardMaterial color={skinColor}/></mesh></group>
-    <group ref={leftLeg} position={[-.16,.55,0]}><mesh position={[0,-.2,0]} castShadow><capsuleGeometry args={[.12,.36,5,9]}/><meshStandardMaterial color="#303447"/></mesh><mesh position={[0,-.42,.08]}><boxGeometry args={[.24,.12,.35]}/><meshStandardMaterial color="#171d29"/></mesh></group>
-    <group ref={rightLeg} position={[.16,.55,0]}><mesh position={[0,-.2,0]} castShadow><capsuleGeometry args={[.12,.36,5,9]}/><meshStandardMaterial color="#303447"/></mesh><mesh position={[0,-.42,.08]}><boxGeometry args={[.24,.12,.35]}/><meshStandardMaterial color="#171d29"/></mesh></group>
-    <Text position={[0,2.58,0]} fontSize={.25} color="#fff4e5" outlineWidth={.025} outlineColor="#20202c" anchorX="center">{name}</Text>
+    <mesh position={[0,1.2,-.25]} castShadow><boxGeometry args={[.46,.6,.2]}/><meshStandardMaterial color="#65516d"/></mesh>
+    <mesh position={[0,1.17,0]} castShadow><capsuleGeometry args={[.3,.76,8,16]}/><meshStandardMaterial color={outfit} roughness={.65}/></mesh>
+    <mesh position={[0,1.49,.13]}><boxGeometry args={[.34,.48,.27]}/><meshStandardMaterial color="#f4eee4"/></mesh>
+    <mesh position={[0,1.47,.275]}><coneGeometry args={[.055,.34,4]}/><meshStandardMaterial color={accent}/></mesh>
+    <mesh position={[0,1.94,0]} castShadow><sphereGeometry args={[.29,32,26]}/><meshStandardMaterial color={skinColor} roughness={.76}/></mesh>
+    <mesh position={[0,2.11,-.03]} castShadow><sphereGeometry args={[.32,28,22,0,Math.PI*2,0,Math.PI*.59]}/><meshStandardMaterial color={hairColor} roughness={.88}/></mesh>
+    {[-.23,-.12,0,.12,.23].map((x,i)=><mesh key={i} position={[x,2.03,.1]} rotation={[0,0,(i-2)*-.16]} castShadow><capsuleGeometry args={[.07,.26+(i%2)*.11,6,10]}/><meshStandardMaterial color={hairColor}/></mesh>)}
+    {[-.105,.105].map(x=><group key={x} position={[x,1.97,.265]}><mesh><sphereGeometry args={[.05,14,14]}/><meshStandardMaterial color="#fff9ef"/></mesh><mesh position={[0,0,.04]}><sphereGeometry args={[.024,12,12]}/><meshStandardMaterial color="#303747"/></mesh></group>)}
+    <mesh position={[0,1.87,.285]}><sphereGeometry args={[.022,8,8]}/><meshStandardMaterial color="#bd826e"/></mesh>
+    <mesh position={[0,1.78,.28]}><boxGeometry args={[.07,.016,.018]}/><meshStandardMaterial color="#985e68"/></mesh>
+    <group ref={leftArm} position={[-.38,1.53,0]}><mesh position={[0,-.28,0]} castShadow><capsuleGeometry args={[.09,.43,6,10]}/><meshStandardMaterial color={outfit}/></mesh><mesh position={[0,-.54,.02]}><sphereGeometry args={[.09,12,12]}/><meshStandardMaterial color={skinColor}/></mesh></group>
+    <group ref={rightArm} position={[.38,1.53,0]}><mesh position={[0,-.28,0]} castShadow><capsuleGeometry args={[.09,.43,6,10]}/><meshStandardMaterial color={outfit}/></mesh><mesh position={[0,-.54,.02]}><sphereGeometry args={[.09,12,12]}/><meshStandardMaterial color={skinColor}/></mesh></group>
+    <group ref={leftLeg} position={[-.16,.55,0]}><mesh position={[0,-.2,0]} castShadow><capsuleGeometry args={[.12,.36,6,10]}/><meshStandardMaterial color="#33384a"/></mesh><mesh position={[0,-.42,.09]}><boxGeometry args={[.24,.12,.34]}/><meshStandardMaterial color="#171b27"/></mesh></group>
+    <group ref={rightLeg} position={[.16,.55,0]}><mesh position={[0,-.2,0]} castShadow><capsuleGeometry args={[.12,.36,6,10]}/><meshStandardMaterial color="#33384a"/></mesh><mesh position={[0,-.42,.09]}><boxGeometry args={[.24,.12,.34]}/><meshStandardMaterial color="#171b27"/></mesh></group>
+    <Text position={[0,2.62,0]} fontSize={.24} color="#fff4e5" outlineWidth={.025} outlineColor="#20202c" anchorX="center">{name}</Text>
   </group>;
 }
 
