@@ -11,7 +11,8 @@ function AcademyBuilding({ position, label, color = "#d8d0c4" }: { position: [nu
     <mesh position={[0,.22,0]} castShadow receiveShadow><boxGeometry args={[11.8,.44,5.8]}/><meshStandardMaterial color="#756c68" roughness={.95}/></mesh>
     <mesh position={[0,2.35,0]} castShadow receiveShadow><boxGeometry args={[11,4.25,5]}/><meshStandardMaterial color={color} roughness={.82}/></mesh>
     <mesh position={[0,4.5,0]} castShadow><boxGeometry args={[11.5,.3,5.5]}/><meshStandardMaterial color="#4b4143" roughness={.8}/></mesh>
-    <mesh position={[0,5.1,0]} rotation={[0,0,Math.PI/2]} castShadow><coneGeometry args={[4.15,11.9,4,1]}/><meshStandardMaterial color="#514653" roughness={.88}/></mesh>
+    <mesh position={[0,5.02,-1.35]} rotation={[-.42,0,0]} castShadow><boxGeometry args={[11.8,.34,3.45]}/><meshStandardMaterial color="#514653" roughness={.88}/></mesh>
+    <mesh position={[0,5.02,1.35]} rotation={[.42,0,0]} castShadow><boxGeometry args={[11.8,.34,3.45]}/><meshStandardMaterial color="#514653" roughness={.88}/></mesh>
     <mesh position={[0,4.62,2.56]}><boxGeometry args={[11.2,.18,.16]}/><meshStandardMaterial color="#f0dfc5" roughness={.65}/></mesh>
     {[-5,-2.5,2.5,5].map(x=><group key={x} position={[x,2.35,2.57]}>
       <mesh castShadow><boxGeometry args={[1.35,1.75,.16]}/><meshStandardMaterial color="#f0dfc5" roughness={.65}/></mesh>
@@ -38,6 +39,22 @@ function Tree({ position, scale = 1 }: { position: [number,number,number]; scale
     <mesh position={[0,.12,0]} receiveShadow><cylinderGeometry args={[.65,.72,.22,12]}/><meshStandardMaterial color="#9b8b72"/></mesh>
   </group>;
 }
+function CampusLamp({position}:{position:[number,number,number]}) {
+  return <group position={position}>
+    <mesh position={[0,1.7,0]} castShadow><cylinderGeometry args={[.07,.11,3.4,8]}/><meshStandardMaterial color="#353b45" metalness={.55} roughness={.4}/></mesh>
+    <mesh position={[0,3.42,0]} castShadow><boxGeometry args={[.62,.12,.62]}/><meshStandardMaterial color="#343541" metalness={.35}/></mesh>
+    <mesh position={[0,3.62,0]}><sphereGeometry args={[.19,12,12]}/><meshStandardMaterial color="#ffe4a6" emissive="#ffc86a" emissiveIntensity={.65}/></mesh>
+    <mesh position={[0,.12,0]}><cylinderGeometry args={[.28,.32,.24,10]}/><meshStandardMaterial color="#55515a"/></mesh>
+  </group>;
+}
+function CampusShrub({position,scale=1}:{position:[number,number,number];scale?:number}) {
+  return <group position={position} scale={scale}>
+    <mesh position={[0,.38,0]} castShadow><sphereGeometry args={[.55,12,10]}/><meshStandardMaterial color="#426b4e" roughness={1}/></mesh>
+    <mesh position={[-.34,.28,.08]} castShadow><sphereGeometry args={[.38,10,9]}/><meshStandardMaterial color="#527b55" roughness={1}/></mesh>
+    <mesh position={[.34,.3,-.08]} castShadow><sphereGeometry args={[.4,10,9]}/><meshStandardMaterial color="#365d47" roughness={1}/></mesh>
+  </group>;
+}
+
 type RectObstacle = { x:number; z:number; halfX:number; halfZ:number };
 const BUILDING_COLLIDERS:RectObstacle[] = [
   {x:0,z:-12,halfX:5.8,halfZ:2.9},
@@ -329,6 +346,16 @@ function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInte
     {/* Walkable campus paths connecting the main courtyard to each zone */}
     <mesh position={[-21,.005,0]}><boxGeometry args={[3,.045,65]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
     <mesh position={[21,.005,0]}><boxGeometry args={[3,.045,65]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
+    {/* Landscaped campus details */}
+    {[-15,-8,8,15].map((x)=><CampusLamp key={"lamp-a"+x} position={[x,0,27]}/>)}
+    {[-15,-8,8,15].map((x)=><CampusLamp key={"lamp-b"+x} position={[x,0,-31]}/>)}
+    {[-16,-12,12,16].map((x)=><CampusShrub key={"shrub-a"+x} position={[x,0,8]} scale={.8}/>)}
+    {[-16,-12,12,16].map((x)=><CampusShrub key={"shrub-b"+x} position={[x,0,-7]} scale={.9}/>)}
+    {[-7,7].map((x)=><group key={"walkway-edge"+x} position={[x,.03,5]}>
+      <mesh><boxGeometry args={[.22,.12,22]}/><meshStandardMaterial color="#e5d8c2"/></mesh>
+    </group>)}
+    <mesh position={[0,.025,8]} receiveShadow><boxGeometry args={[20,.08,1.1]}/><meshStandardMaterial color="#b6aa98"/></mesh>
+    <mesh position={[0,.025,26]} receiveShadow><boxGeometry args={[20,.08,1.1]}/><meshStandardMaterial color="#b6aa98"/></mesh>
     {/* Main entrance gate */}
     <group position={[0,0,43]}>
       {[-5,5].map(x=><mesh key={x} position={[x,2.8,0]} castShadow><boxGeometry args={[1.2,5.6,1.2]}/><meshStandardMaterial color="#c8b7aa"/></mesh>)}
