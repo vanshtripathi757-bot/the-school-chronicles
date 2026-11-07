@@ -89,3 +89,12 @@
 .mini-map-legend{margin-top:7px;color:#cbbdd2;font-size:7px;letter-spacing:.06em;white-space:nowrap}
 @media(max-width:760px){.mini-map{top:294px;right:12px;width:150px;padding:7px}.mini-map-grid{height:108px}.mini-map-legend{font-size:6px}.mission-card{width:178px}}
 @media(max-height:700px) and (max-width:760px){.mini-map{top:270px}.mini-map-grid{height:88px}}
+
+/* Higher, tap-to-collapse campus minimap */
+.mini-map{top:94px;right:28px;transition:width .2s ease,padding .2s ease;z-index:18}
+.mini-map-heading{width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 0 8px;border:0;background:transparent;color:#e1baf3;font:inherit;font-size:8px;letter-spacing:.18em;text-align:left;cursor:pointer}
+.mini-map-heading span{display:grid;place-items:center;width:19px;height:19px;border:1px solid #d9b4e966;border-radius:50%;color:#fff;font-size:13px;line-height:1}
+.mini-map.is-collapsed{width:132px;padding:8px 10px}
+.mini-map.is-collapsed .mini-map-heading{padding:0}
+@media(max-width:760px){.mini-map{top:64px;right:12px;width:142px}.mini-map.is-collapsed{width:126px}.mission-card{top:188px}}
+@media(max-height:700px) and (max-width:760px){.mini-map{top:58px}.mission-card{top:174px}}
