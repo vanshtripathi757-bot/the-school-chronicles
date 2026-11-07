@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/story-director.ts": {
+      "maxDuration": 30
+    }
+  }
+}
