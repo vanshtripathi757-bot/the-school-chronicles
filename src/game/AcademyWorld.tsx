@@ -165,6 +165,7 @@ function StudentNPC({ name, outfit, start, route, onTalk }: {
   const root=useRef<THREE.Group>(null);
   const step=useRef(0);
   const phase=useRef(Math.random()*Math.PI*2);
+  useEffect(()=>{step.current=0;},[route]);
   useFrame((_,delta)=>{
     if(!root.current) return;
     const target=route[step.current];
@@ -198,6 +199,18 @@ function InteractiveMarker({ position, label, onSelect }: { position:[number,num
     <mesh position={[0,.15,0]}><cylinderGeometry args={[.48,.48,.25,20]} /><meshStandardMaterial color="#a88ac2" emissive="#4d2868" emissiveIntensity={.35} /></mesh>
   </group>;
 }
+
+const NPC_ROUTES = {
+  aikoCourtyard: [[-3,0,15],[3,0,15],[3,0,23],[-3,0,23]] as [number,number,number][],
+  aikoLunch: [[-3,0,15],[-29,0,-13],[-25,0,-13]] as [number,number,number][],
+  aikoLibrary: [[-3,0,15],[12,0,2],[16,0,2]] as [number,number,number][],
+  renCourtyard: [[6,0,19],[10,0,19],[10,0,26],[6,0,26]] as [number,number,number][],
+  renSports: [[6,0,19],[29,0,22],[34,0,22]] as [number,number,number][],
+  renClubs: [[6,0,19],[29,0,-10],[34,0,-10]] as [number,number,number][],
+  mikaCourtyard: [[-9,0,19],[-6,0,19],[-6,0,25],[-9,0,25]] as [number,number,number][],
+  mikaLunch: [[-9,0,19],[-29,0,-13],[-25,0,-13]] as [number,number,number][],
+  mikaLibrary: [[-9,0,19],[12,0,2],[16,0,2]] as [number,number,number][]
+};
 
 function World({ onInteract, interior, gameMinutes }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number }) {
   if(interior) return <>
@@ -264,9 +277,9 @@ function World({ onInteract, interior, gameMinutes }: { onInteract:(label:string
     <mesh position={[0,.9,-5]}><cylinderGeometry args={[.08,.08,.8,12]} /><meshStandardMaterial color="#d5e7ee" /></mesh>
     {[-9,-6,6,9].map((x)=>[-10,-3,5,12].map((z)=><Tree key={x+"-"+z} position={[x,0,z]} scale={.8+(Math.abs(x+z)%3)*.12}/>))}
     {[-3,3].map((x)=><group key={x} position={[x,0,3]}><mesh position={[0,.55,0]} castShadow><boxGeometry args={[2.4,.18,.7]} /><meshStandardMaterial color="#795b50" /></mesh><mesh position={[-.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh><mesh position={[.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh></group>)}
-    <StudentNPC name="Aiko" outfit="#6c789f" start={[-3,0,15]} route={gameMinutes>=660&&gameMinutes<780?[[-3,0,15],[-29,0,-13],[-25,0,-13]]:gameMinutes>=780&&gameMinutes<900?[[-3,0,15],[12,0,2],[16,0,2]]:[[-3,0,15],[3,0,15],[3,0,23],[-3,0,23]]} onTalk={onInteract}/>
-    <StudentNPC name="Ren" outfit="#9a6d78" start={[6,0,19]} route={gameMinutes>=840?[[6,0,19],[29,0,-10],[34,0,-10]]:gameMinutes>=720?[[6,0,19],[29,0,22],[34,0,22]]:[[6,0,19],[10,0,19],[10,0,26],[6,0,26]]} onTalk={onInteract}/>
-    <StudentNPC name="Mika" outfit="#648b7d" start={[-9,0,19]} route={gameMinutes>=780&&gameMinutes<900?[[-9,0,19],[-29,0,-13],[-25,0,-13]]:gameMinutes>=540&&gameMinutes<660?[[-9,0,19],[12,0,2],[16,0,2]]:[[-9,0,19],[-6,0,19],[-6,0,25],[-9,0,25]]} onTalk={onInteract}/>
+    <StudentNPC name="Aiko" outfit="#6c789f" start={[-3,0,15]} route={gameMinutes>=660&&gameMinutes<780?NPC_ROUTES.aikoLunch:gameMinutes>=780&&gameMinutes<900?NPC_ROUTES.aikoLibrary:NPC_ROUTES.aikoCourtyard} onTalk={onInteract}/>
+    <StudentNPC name="Ren" outfit="#9a6d78" start={[6,0,19]} route={gameMinutes>=840?NPC_ROUTES.renClubs:gameMinutes>=720?NPC_ROUTES.renSports:NPC_ROUTES.renCourtyard} onTalk={onInteract}/>
+    <StudentNPC name="Mika" outfit="#648b7d" start={[-9,0,19]} route={gameMinutes>=780&&gameMinutes<900?NPC_ROUTES.mikaLunch:gameMinutes>=540&&gameMinutes<660?NPC_ROUTES.mikaLibrary:NPC_ROUTES.mikaCourtyard} onTalk={onInteract}/>
     <InteractiveMarker position={[0,0,-8.2]} label="ACADEMY ENTRANCE" onSelect={onInteract}/>
     <InteractiveMarker position={[-12,0,2.7]} label="LIBRARY DOOR" onSelect={onInteract}/>
     <InteractiveMarker position={[12,0,2.7]} label="CLASSROOM DOOR" onSelect={onInteract}/>
