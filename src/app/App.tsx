@@ -10,8 +10,9 @@ export default function App() {
   const [notice,setNotice]=useState("");
   const [interaction,setInteraction]=useState("");
   const [interior,setInterior]=useState<string|null>(null);
+  const [dialogue,setDialogue]=useState("");
   const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
-  const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");setInterior(null);};
+  const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");setInterior(null);setDialogue("");};
   return <main className="game-root">
     {(screen==="menu"||screen==="game")&&<div className="world-layer"><AcademyWorld onInteract={setInteraction} interior={interior}/></div>}
     {screen==="menu"&&<section className="title-screen">
@@ -30,8 +31,15 @@ export default function App() {
     </section>}
     {screen==="game"&&<section className="game-hud">
       <header className="hud-top"><div className="brand-mark">SC <span>THE SCHOOL CHRONICLES</span></div><div className="hud-location">HOSHINO ACADEMY <i>•</i> MAIN COURTYARD</div><button onClick={goMenu}>PAUSE / MENU <span>Ⅱ</span></button></header>
-      <div className="objective"><small>YOUR FIRST DAY</small><strong>Explore the academy</strong><span>Walk around and discover the campus.</span></div>
-      {(interaction||interior)&&<div className="interaction-card"><small>{interior?"BUILDING INTERIOR":"YOU DISCOVERED"}</small><strong>{interior??interaction}</strong><p>{({LIBRARY:"A quiet place filled with books and stories.",CLASSROOMS:"The heart of academy life. Classes begin here.",FOUNTAIN:"A peaceful fountain in the centre of campus.",CAFETERIA:"Meet friends and take a break between classes.",GYMNASIUM:"The indoor sports and fitness centre.",DORMITORY:"Student residence and common rooms.", "SPORTS FIELD":"Outdoor grounds for games and school tournaments.","MAIN GATE":"The main entrance to Hoshino Academy.","ARTS & CLUBS":"Creative studios and after-school club rooms.","ACADEMY ENTRANCE":"Main entrance. The inside area is being prepared.","LIBRARY DOOR":"Library entrance found. Interior access is being built.","CLASSROOM DOOR":"Classroom wing entrance found. Interior access is being built.","CAFETERIA DOOR":"Cafeteria entrance found. Interior access is being built.","GYM DOOR":"Gymnasium entrance found. Interior access is being built.","DORMITORY DOOR":"Dormitory entrance found. Interior access is being built.","CLUB DOOR":"Club wing entrance found. Interior access is being built."} as Record<string,string>)[interaction] ?? "Explore this part of the academy."}</p>{interior
+      <div className="objective"><small>YOUR FIRST DAY · 08:00 AM</small><strong>Explore the academy</strong><span>Homeroom → Mathematics → Science → Break</span></div>
+      {(interaction||interior)&&<div className="interaction-card"><small>{interior?"BUILDING INTERIOR":"YOU DISCOVERED"}</small><strong>{interior??interaction}</strong><p>{({LIBRARY:"A quiet place filled with books and stories.",CLASSROOMS:"The heart of academy life. Classes begin here.",FOUNTAIN:"A peaceful fountain in the centre of campus.",CAFETERIA:"Meet friends and take a break between classes.",GYMNASIUM:"The indoor sports and fitness centre.",DORMITORY:"Student residence and common rooms.", "SPORTS FIELD":"Outdoor grounds for games and school tournaments.","MAIN GATE":"The main entrance to Hoshino Academy.","ARTS & CLUBS":"Creative studios and after-school club rooms.","ACADEMY ENTRANCE":"Main entrance. The inside area is being prepared.","LIBRARY DOOR":"Library entrance found. Interior access is being built.","CLASSROOM DOOR":"Classroom wing entrance found. Interior access is being built.","CAFETERIA DOOR":"Cafeteria entrance found. Interior access is being built.","GYM DOOR":"Gymnasium entrance found. Interior access is being built.","DORMITORY DOOR":"Dormitory entrance found. Interior access is being built.","CLUB DOOR":"Club wing entrance found. Interior access is being built."} as Record<string,string>)[interaction] ?? "Explore this part of the academy."}</p>{interaction.startsWith("TALK: ")&&<div className="npc-dialogue">
+          <p>{dialogue || "A student from Hoshino Academy is ready to chat."}</p>
+          <div className="dialogue-choices">
+            <button onClick={()=>setDialogue("Good morning! I’m getting ready for the first homeroom. See you in class.")}>Good morning!</button>
+            <button onClick={()=>setDialogue("Today: 08:00 Homeroom · 09:00 Mathematics · 10:00 Science · 11:00 Break.")}>What is today's timetable?</button>
+            <button onClick={()=>setDialogue("The library, cafeteria and sports field are all open to explore.")}>Where should I go?</button>
+          </div>
+        </div>}{interior
         ? <button onClick={()=>{setInterior(null);setInteraction("");}}>EXIT BUILDING</button>
         : interaction.endsWith("DOOR")
           ? <button onClick={()=>{setInterior(interaction.replace(" DOOR",""));setInteraction("");}}>ENTER BUILDING</button>
@@ -39,7 +47,7 @@ export default function App() {
         <button onClick={()=>setInteraction("")}>CLOSE</button></div>}
       <div className="controls-help"><span>W A S D <small>MOVE</small></span><span>SHIFT <small>RUN</small></span><span>CLICK GLOWING MARKERS <small>INTERACT</small></span></div>
       <div className="joystick-controls"><VirtualJoystick side="move" label="MOVE"/><div className="camera-drag-hint">DRAG TO LOOK</div></div>
-      <div className="game-footer"><span>DAY 01</span><span>MONDAY · 08:00 AM</span><span>ACADEMY LIFE SIMULATION</span></div>
+      <div className="game-footer"><span>DAY 01</span><span>MONDAY · HOMEROOM<span>ACADEMY LIFE SIMULATION</span></div>
       {notice&&<div className="toast">{notice}<button onClick={()=>setNotice("")}>×</button></div>}
     </section>}
     {screen==="settings"&&<section className="panel-screen"><button className="back" onClick={goMenu}>← BACK TO TITLE</button><p className="eyebrow">PREFERENCES</p><h2>SETTINGS</h2><div className="settings-card">
