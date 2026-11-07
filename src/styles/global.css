@@ -28,3 +28,11 @@
  .stick-knob{width:44px;height:44px;margin:-22px}
  .move-stick{left:8px}.look-stick{right:8px}
 }
+
+/* Student dialogue and choice UI */
+.npc-dialogue{margin:12px 0;padding:12px;border:1px solid #d6b6e866;background:#171426aa;border-radius:8px}
+.npc-dialogue p{margin:0 0 10px;color:#f0e4f5;font-size:12px;line-height:1.55}
+.dialogue-choices{display:flex;flex-wrap:wrap;gap:7px}
+.dialogue-choices button{padding:8px 10px;border:1px solid #d4b3e477;border-radius:5px;background:#322540;color:#f6eafa;font-size:10px}
+.dialogue-choices button:active{background:#614579}
+@media(max-width:760px){.npc-dialogue p{font-size:11px}.dialogue-choices button{font-size:9px;padding:7px 8px}}
