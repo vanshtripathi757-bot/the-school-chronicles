@@ -5,6 +5,7 @@ import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "
 import { loadGame, saveGame } from "../storage/progress";
 import { increaseFriendship, loadFriendships, resetFriendships, saveFriendships, type FriendshipMap } from "../storage/relationships";
 import { completeMission, loadMissions, resetMissions, saveMissions, MISSION_LABELS, type MissionId, type MissionMap } from "../storage/missions";
+import { loadProgression, resetProgression, saveProgression, awardExperience, type PlayerProgression } from "../storage/progression";
 
 type Screen = "menu" | "game" | "settings" | "credits" | "load";
 function playerAction(action:"jump"|"run",active:boolean){window.dispatchEvent(new CustomEvent("tsc-player-action",{detail:{action,active}}));}
@@ -17,10 +18,11 @@ export default function App() {
   const [dialogue,setDialogue]=useState("");
   const [friendships,setFriendships]=useState<FriendshipMap>(loadFriendships);
   const [missions,setMissions]=useState<MissionMap>(loadMissions);
+  const [progression,setProgression]=useState<PlayerProgression>(loadProgression);
   const handleInteract=(label:string)=>{
     setInteraction(label);
     const missionId:MissionId|null=label==="TALK: Aiko"?"meet-aiko":label==="LIBRARY"||label==="LIBRARY DOOR"?"visit-library":label==="CAFETERIA"||label==="CAFETERIA DOOR"?"visit-cafeteria":null;
-    if(missionId) setMissions((current)=>{const next=completeMission(current,missionId);saveMissions(next);return next;});
+    if(missionId) setMissions((current)=>{if(current[missionId])return current;const updated=completeMission(current,missionId);saveMissions(updated);setProgression((value)=>{const earned=awardExperience(value,50);saveProgression(earned);return earned;});return updated;});
   };
   const [savedAt,setSavedAt]=useState<number|null>(()=>loadGame()?.savedAt??null);
   const chooseDialogue=(name:string,message:string)=>{
@@ -34,7 +36,7 @@ export default function App() {
   const [gameMinutes,setGameMinutes]=useState<number>(()=>loadGame()?.gameMinutes??465);
   const persistGame=()=>{window.dispatchEvent(new Event("tsc-save-position"));const saved=saveGame(interior,gameMinutes);setSavedAt(saved.savedAt);setNotice("Journey saved on this device.");};
   const resumeGame=()=>{const saved=loadGame();if(!saved){setNotice("No saved journey yet. Start a new game first.");return;}setInterior(saved.interior);setGameMinutes(saved.gameMinutes);setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));setSavedAt(saved.savedAt);};
-  const startNewGame=()=>{localStorage.removeItem("tsc-player-position-v1");localStorage.removeItem("tsc-save-v1");setSavedAt(null);setGameMinutes(465);setInterior(null);setInteraction("");setDialogue("");setFriendships(resetFriendships());setMissions(resetMissions());setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));};
+  const startNewGame=()=>{localStorage.removeItem("tsc-player-position-v1");localStorage.removeItem("tsc-save-v1");setSavedAt(null);setGameMinutes(465);setInterior(null);setInteraction("");setDialogue("");setFriendships(resetFriendships());setMissions(resetMissions());setProgression(resetProgression());setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));};
   const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
   useEffect(()=>{if(screen!=="game")return;const timer=window.setInterval(()=>setGameMinutes(value=>(value+1)%1440),1000);return()=>window.clearInterval(timer);},[screen]);
   const formatGameTime=(minutes:number)=>{const hour=Math.floor(minutes/60)%24;const minute=minutes%60;return `${String(hour%12||12).padStart(2,"0")}:${String(minute).padStart(2,"0")} ${hour>=12?"PM":"AM"}`;};
@@ -60,6 +62,7 @@ export default function App() {
     {screen==="game"&&<section className="game-hud">
       <header className="hud-top"><div className="brand-mark">SC <span>THE SCHOOL CHRONICLES</span></div><div className="hud-location">HOSHINO ACADEMY <i>•</i> MAIN COURTYARD</div><div className="hud-actions"><button onClick={persistGame}>SAVE <span>◇</span></button><button onClick={()=>{persistGame();goMenu();}}>PAUSE / MENU <span>Ⅱ</span></button></div></header>
       <div className="objective"><small>DAY 01 · {formatGameTime(gameMinutes)} · {currentPeriod.name.toUpperCase()}</small><strong>{gameMinutes>=480&&gameMinutes<960?`Now: ${currentPeriod.name}`:"Explore the academy"}</strong><span>Next destination: {currentPeriod.place} · 1 game minute / real second</span></div>
+      <aside className="progress-card" aria-label="Player progression"><div><small>PLAYER LEVEL</small><strong>LV. {progression.level}</strong><span>{progression.experience} XP</span></div><div className="progress-track"><i style={{width:`${progression.experience%100}%`}} /></div><small>{100-(progression.experience%100)} XP TO NEXT LEVEL</small></aside>
       <aside className="mission-card" aria-label="Campus missions"><small>CAMPUS MISSIONS · {Object.values(missions).filter(Boolean).length}/3</small>{(Object.entries(MISSION_LABELS) as [MissionId,string][]).map(([id,label])=><div key={id} className={missions[id]?"completed":""}><span>{missions[id]?"✓":"○"}</span>{label}</div>)}</aside>
       {(interaction||interior)&&<div className="interaction-card"><small>{interior?"BUILDING INTERIOR":"YOU DISCOVERED"}</small><strong>{interior??interaction}</strong><p>{({LIBRARY:"A quiet place filled with books and stories.",CLASSROOMS:"The heart of academy life. Classes begin here.",FOUNTAIN:"A peaceful fountain in the centre of campus.",CAFETERIA:"Meet friends and take a break between classes.",GYMNASIUM:"The indoor sports and fitness centre.",DORMITORY:"Student residence and common rooms.", "SPORTS FIELD":"Outdoor grounds for games and school tournaments.","MAIN GATE":"The main entrance to Hoshino Academy.","ARTS & CLUBS":"Creative studios and after-school club rooms.","ACADEMY ENTRANCE":"Main entrance. The inside area is being prepared.","LIBRARY DOOR":"Library entrance found. Interior access is being built.","CLASSROOM DOOR":"Classroom wing entrance found. Interior access is being built.","CAFETERIA DOOR":"Cafeteria entrance found. Interior access is being built.","GYM DOOR":"Gymnasium entrance found. Interior access is being built.","DORMITORY DOOR":"Dormitory entrance found. Interior access is being built.","CLUB DOOR":"Club wing entrance found. Interior access is being built."} as Record<string,string>)[interaction] ?? "Explore this part of the academy."}</p>{interaction.startsWith("TALK: ")&&<div className="npc-dialogue">
           <small className="friendship-status">FRIENDSHIP · {friendships[interaction.replace("TALK: ","")]??0}/100</small>
