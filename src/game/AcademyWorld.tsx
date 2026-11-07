@@ -157,7 +157,33 @@ function InteractiveMarker({ position, label, onSelect }: { position:[number,num
   </group>;
 }
 
-function World({ onInteract }: { onInteract:(label:string)=>void }) {
+function World({ onInteract, interior }: { onInteract:(label:string)=>void; interior:string|null }) {
+  if(interior) return <>
+    <color attach="background" args={["#1b1b2b"]} />
+    <fog attach="fog" args={["#1b1b2b",24,48]} />
+    <ambientLight intensity={1.05} />
+    <directionalLight position={[-5,12,7]} intensity={1.5} castShadow />
+    <mesh position={[0,-.12,0]} receiveShadow><boxGeometry args={[22,.24,20]}/><meshStandardMaterial color="#9a8d82" roughness={.9}/></mesh>
+    <mesh position={[0,4.2,-10]}><boxGeometry args={[22,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
+    <mesh position={[-11,4.2,0]}><boxGeometry args={[.35,8,20]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
+    <mesh position={[11,4.2,0]}><boxGeometry args={[.35,8,20]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
+    <mesh position={[-5,4.2,10]}><boxGeometry args={[12,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
+    <mesh position={[8,4.2,10]}><boxGeometry args={[6,8,.35]}/><meshStandardMaterial color="#d2c8c2"/></mesh>
+    <mesh position={[0,3.1,-9.72]}><boxGeometry args={[7,2.2,.08]}/><meshStandardMaterial color="#23443e" roughness={.65}/></mesh>
+    <Text position={[0,5.3,-9.6]} fontSize={.72} color="#f6e8d2" anchorX="center">{interior.toUpperCase()}</Text>
+    {[-5,0,5].map(x=><group key={x} position={[x,0,-5]}>
+      <mesh position={[0,1.35,0]} castShadow><boxGeometry args={[3.1,.18,1.5]}/><meshStandardMaterial color="#9b7659"/></mesh>
+      <mesh position={[0,.68,.85]}><boxGeometry args={[.8,1.25,.12]}/><meshStandardMaterial color="#5b4851"/></mesh>
+      <mesh position={[0,.62,1.65]}><boxGeometry args={[1.1,.12,.9]}/><meshStandardMaterial color="#735b4e"/></mesh>
+    </group>)}
+    {[-5,0,5].map(x=><group key={x} position={[x,0,1]}>
+      <mesh position={[0,1.35,0]} castShadow><boxGeometry args={[3.1,.18,1.5]}/><meshStandardMaterial color="#9b7659"/></mesh>
+      <mesh position={[0,.68,.85]}><boxGeometry args={[.8,1.25,.12]}/><meshStandardMaterial color="#5b4851"/></mesh>
+      <mesh position={[0,.62,1.65]}><boxGeometry args={[1.1,.12,.9]}/><meshStandardMaterial color="#735b4e"/></mesh>
+    </group>)}
+    <InteractiveMarker position={[0,0,8.4]} label="EXIT" onSelect={onInteract}/>
+    <Player />
+  </>;
   return <>
     <color attach="background" args={["#a9b9cb"]} />
     <fog attach="fog" args={["#a9b9cb",28,65]} />
@@ -216,7 +242,7 @@ function World({ onInteract }: { onInteract:(label:string)=>void }) {
   </>;
 }
 
-export function AcademyWorld({ onInteract }: { onInteract:(label:string)=>void }) {
-  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:180}}><World onInteract={onInteract}/></Canvas>;
+export function AcademyWorld({ onInteract, interior }: { onInteract:(label:string)=>void; interior:string|null }) {
+  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:180}}><World onInteract={onInteract} interior={interior}/></Canvas>;
 }
 
