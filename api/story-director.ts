@@ -42,9 +42,10 @@ function validPack(value: unknown, xp: number): StoryPack | null {
   if (!value || typeof value !== "object") return null;
   const p = value as Record<string, unknown>;
   const kind = p.kind as ContentKind;
-  const options = Array.isArray(p.options) ? p.options.map(x => text(x, 160)).filter(Boolean).slice(0, 4) : [];
+  const rawOptions = Array.isArray(p.options) ? p.options : [];
+  const options = rawOptions.map(x => text(x, 160));
   const correctOption = Number(p.correctOption);
-  if (!allowedKinds.has(kind) || options.length !== 4 || !Number.isInteger(correctOption) || correctOption < 0 || correctOption > 3) return null;
+  if (!allowedKinds.has(kind) || rawOptions.length !== 4 || options.some(option => !option) || !Number.isInteger(correctOption) || correctOption < 0 || correctOption > 3) return null;
   const title = text(p.title, 70);
   const summary = text(p.summary, 220);
   const chapter = text(p.chapter, 60);
@@ -97,6 +98,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   else bucket.count += 1;
 
   const body = req.body && typeof req.body === "object" ? req.body as Record<string, unknown> : {};
+  try {
+    if (JSON.stringify(body).length > 4000) return send(res, 413, { error: "Story progress request is too large." });
+  } catch {
+    return send(res, 400, { error: "Invalid request body." });
+  }
   const xp = Number(body.experience);
   const completedMissions = Number(body.completedMissions);
   const seenIds = Array.isArray(body.seenIds) ? body.seenIds.filter(x => typeof x === "string").slice(0, 20) : [];
