@@ -1,117 +1,46 @@
-import { useEffect, useRef, useState } from "react";
-import type Phaser from "phaser";
+import { useState } from "react";
+import { AcademyWorld } from "../game/AcademyWorld";
 import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "../storage/settings";
 
 type Screen = "menu" | "game" | "settings" | "credits" | "load";
-const hasSave = () => false; // Phase 1 has storage foundation only; save slots arrive in Phase 8.
-
 export default function App() {
-  const [screen, setScreen] = useState<Screen>("menu");
-  const [settings, setSettings] = useState<GameSettings>(loadSettings);
-  const [notice, setNotice] = useState("");
-  const [imageFailed, setImageFailed] = useState(false);
-  const gameHost = useRef<HTMLDivElement>(null);
-  const gameRef = useRef<Phaser.Game | null>(null);
-
-  useEffect(() => {
-    if (screen !== "game" || !gameHost.current || gameRef.current) return;
-    let cancelled = false;
-    let createdGame: Phaser.Game | null = null;
-    import("../game/Game")
-      .then(({ createGame }) => {
-        if (cancelled || !gameHost.current || gameRef.current) return;
-        createdGame = createGame(gameHost.current);
-        gameRef.current = createdGame;
-      })
-      .catch((error: unknown) => {
-        const message = error instanceof Error ? error.message : String(error);
-        setNotice("Game engine failed to start: " + message);
-        setScreen("menu");
-      });
-    return () => {
-      cancelled = true;
-      if (createdGame) {
-        createdGame.destroy(true);
-        if (gameRef.current === createdGame) gameRef.current = null;
-      }
-    };
-  }, [screen]);
-
-  const updateSettings = (next: GameSettings) => {
-    setSettings(next);
-    saveSettings(next);
-  };
-
-  const startNewGame = () => { setNotice(""); setScreen("game"); };
-  const goBack = () => { setNotice(""); setScreen("menu"); };
-
-  return (
-    <main className="app-shell">
-      {screen === "menu" && <section className="menu-screen generated-menu">
-        <img className="menu-art" src="/images/academy-menu.jpg" alt="The School Chronicles anime academy at sunset" onError={(event) => { setImageFailed(true); event.currentTarget.onerror = null; event.currentTarget.src = "/images/academy-campus.svg"; }} />
-        {imageFailed && <div className="fallback-menu-ui">
-          <div className="fallback-menu-title"><p>AN ELITE ACADEMY STORY</p><h1>THE SCHOOL<br/>CHRONICLES</h1><span>YOUR STORY BEGINS HERE</span></div>
-          <nav className="fallback-menu-buttons" aria-label="Main menu">
-            <button onClick={startNewGame}>NEW GAME</button>
-            <button onClick={() => hasSave() ? setScreen("game") : setNotice("No saved game found yet. Start a New Game to begin.")}>CONTINUE</button>
-            <button onClick={() => setScreen("load")}>LOAD GAME</button>
-            <button onClick={() => setScreen("settings")}>SETTINGS</button>
-            <button onClick={() => setScreen("credits")}>CREDITS</button>
-            <button onClick={() => setNotice("You can close this browser tab to leave the game.")}>QUIT</button>
-          </nav>
-        </div>}
-        {!imageFailed && <div className="menu-hotspots" aria-label="Main menu">
-          <button className="hotspot profile-hotspot" aria-label="Profile" onClick={() => setNotice("Player profile will be available with character creation.")} />
-          <button className="hotspot trophy-hotspot" aria-label="Achievements" onClick={() => setNotice("Academy achievements will unlock during gameplay.")} />
-          <button className="hotspot settings-hotspot" aria-label="Settings" onClick={() => setScreen("settings")} />
-          <button className="hotspot newgame-hotspot" aria-label="New Game" onClick={startNewGame} />
-          <button className="hotspot continue-hotspot" aria-label="Continue" onClick={() => hasSave() ? setScreen("game") : setNotice("No saved game found yet. Start a New Game to begin.")} />
-          <button className="hotspot load-hotspot" aria-label="Load Game" onClick={() => setScreen("load")} />
-          <button className="hotspot menu-settings-hotspot" aria-label="Settings" onClick={() => setScreen("settings")} />
-          <button className="hotspot credits-hotspot" aria-label="Credits" onClick={() => setScreen("credits")} />
-          <button className="hotspot quit-hotspot" aria-label="Quit" onClick={() => setNotice("You can close this browser tab to leave the game.")} />
-        </div>}
-        {notice && <div className="menu-notice" role="status"><span>{notice}</span><button onClick={() => setNotice("")} aria-label="Dismiss">×</button></div>}
-        <div className="rotate-prompt" aria-live="polite">
-          <div className="rotate-symbol">▱</div><p>THE SCHOOL CHRONICLES</p>
-          <h2>PLEASE ROTATE YOUR DEVICE</h2>
-          <span>THIS GAME IS DESIGNED FOR LANDSCAPE MODE</span>
-        </div>
-      </section>}
-
-      {screen === "game" && <section className="game-screen">
-        <header className="game-topbar"><span>THE SCHOOL CHRONICLES</span><button onClick={goBack}>← MAIN MENU</button></header>
-        <div className="game-canvas" ref={gameHost} />
-      </section>}
-
-      {screen === "settings" && <section className="sub-screen">
-        <button className="back-button" onClick={goBack}>← BACK</button>
-        <p className="eyebrow">PREFERENCES</p><h2>SETTINGS</h2>
-        <div className="settings-panel">
-          {(["masterVolume", "musicVolume", "effectsVolume"] as const).map((key) => <label className="setting-row" key={key}>
-            <span>{key === "masterVolume" ? "Master volume" : key === "musicVolume" ? "Music volume" : "Sound effects"}</span>
-            <strong>{settings[key]}%</strong>
-            <input type="range" min="0" max="100" value={settings[key]} onChange={e => updateSettings({ ...settings, [key]: Number(e.target.value) })}/>
-          </label>)}
-          <label className="setting-row"><span>Dialogue speed preference</span>
-            <select value={settings.dialogueSpeed} onChange={e => updateSettings({ ...settings, dialogueSpeed: e.target.value as GameSettings["dialogueSpeed"] })}>
-              <option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option>
-            </select>
-          </label>
-          <button className="secondary-button" onClick={() => updateSettings(defaultSettings)}>RESTORE DEFAULTS</button>
-          <p className="helper">Preferences are saved locally in this browser.</p>
-        </div>
-      </section>}
-
-      {screen === "load" && <section className="sub-screen">
-        <button className="back-button" onClick={goBack}>← BACK</button><p className="eyebrow">YOUR JOURNEY</p><h2>LOAD GAME</h2>
-        <div className="empty-state"><span className="empty-icon">◇</span><h3>No save slots yet</h3><p>Save slots and full save management are planned for Phase 8.</p><button className="secondary-button" onClick={startNewGame}>START NEW GAME</button></div>
-      </section>}
-
-      {screen === "credits" && <section className="sub-screen credits-screen">
-        <button className="back-button" onClick={goBack}>← BACK</button><p className="eyebrow">THE PEOPLE BEHIND THE STORY</p><h2>CREDITS</h2>
-        <div className="credits-card"><h3>THE SCHOOL CHRONICLES</h3><p>Original game concept and project direction</p><p className="credit-name">Vanshu</p><hr/><p>Built with React, TypeScript, Vite and Phaser 3.</p><small>Phase 1 Foundation · Version 0.1.0</small></div>
-      </section>}
-    </main>
-  );
+  const [screen,setScreen]=useState<Screen>("menu");
+  const [settings,setSettings]=useState<GameSettings>(loadSettings);
+  const [notice,setNotice]=useState("");
+  const [interaction,setInteraction]=useState("");
+  const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
+  const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");};
+  return <main className="game-root">
+    {(screen==="menu"||screen==="game")&&<div className="world-layer"><AcademyWorld onInteract={setInteraction}/></div>}
+    {screen==="menu"&&<section className="title-screen">
+      <div className="title-topline"><span>AN ORIGINAL ANIME SCHOOL-LIFE ADVENTURE</span><span>EARLY ACCESS · BUILD 0.2</span></div>
+      <div className="title-copy"><div className="crest">✦ HOSHINO ACADEMY ✦</div><h1>THE SCHOOL<br/><em>CHRONICLES</em></h1><p>YOUR DAYS. YOUR CHOICES. YOUR STORY.</p><div className="title-rule"/></div>
+      <nav className="main-menu" aria-label="Main menu">
+        <button className="primary" onClick={()=>{setScreen("game");setNotice("");}}> <span>01</span> NEW GAME <b>↗</b></button>
+        <button onClick={()=>setNotice("No saved journey yet. Start a new game to explore the academy.")}><span>02</span> CONTINUE <b>◇</b></button>
+        <button onClick={()=>setScreen("load")}><span>03</span> LOAD GAME <b>▤</b></button>
+        <button onClick={()=>setScreen("settings")}><span>04</span> SETTINGS <b>⚙</b></button>
+        <button onClick={()=>setScreen("credits")}><span>05</span> CREDITS <b>✧</b></button>
+      </nav>
+      <div className="title-bottom"><span>THIRD-PERSON 3D WORLD</span><span>WASD / ARROWS TO MOVE · SHIFT TO RUN</span><span>WEB + ANDROID IN DEVELOPMENT</span></div>
+      {notice&&<div className="toast" role="status">{notice}<button onClick={()=>setNotice("")}>×</button></div>}
+      <div className="world-hint">LIVE 3D ACADEMY ENVIRONMENT</div>
+    </section>}
+    {screen==="game"&&<section className="game-hud">
+      <header className="hud-top"><div className="brand-mark">SC <span>THE SCHOOL CHRONICLES</span></div><div className="hud-location">HOSHINO ACADEMY <i>•</i> MAIN COURTYARD</div><button onClick={goMenu}>PAUSE / MENU <span>Ⅱ</span></button></header>
+      <div className="objective"><small>YOUR FIRST DAY</small><strong>Explore the academy</strong><span>Walk around and discover the campus.</span></div>
+      {interaction&&<div className="interaction-card"><small>YOU DISCOVERED</small><strong>{interaction}</strong><p>{interaction==="LIBRARY"?"A quiet place filled with books and stories.":interaction==="CLASSROOMS"?"The heart of academy life. Classes begin here.":"A peaceful fountain in the centre of campus."}</p><button onClick={()=>setInteraction("")}>CLOSE</button></div>}
+      <div className="controls-help"><span>W A S D <small>MOVE</small></span><span>SHIFT <small>RUN</small></span><span>CLICK GLOWING MARKERS <small>INTERACT</small></span></div>
+      <div className="touch-controls" aria-label="Touch movement controls"><button onTouchStart={()=>{}} onClick={()=>setNotice("Use the on-screen directional pad in the next mobile controls update.")}>↑</button><div><button>←</button><button>↓</button><button>→</button></div></div>
+      <div className="game-footer"><span>DAY 01</span><span>MONDAY · 08:00 AM</span><span>ACADEMY LIFE SIMULATION</span></div>
+      {notice&&<div className="toast">{notice}<button onClick={()=>setNotice("")}>×</button></div>}
+    </section>}
+    {screen==="settings"&&<section className="panel-screen"><button className="back" onClick={goMenu}>← BACK TO TITLE</button><p className="eyebrow">PREFERENCES</p><h2>SETTINGS</h2><div className="settings-card">
+      {(["masterVolume","musicVolume","effectsVolume"] as const).map(key=><label className="setting" key={key}><span>{key==="masterVolume"?"MASTER VOLUME":key==="musicVolume"?"MUSIC VOLUME":"SOUND EFFECTS"}</span><strong>{settings[key]}%</strong><input type="range" min="0" max="100" value={settings[key]} onChange={e=>updateSettings({...settings,[key]:Number(e.target.value)})}/></label>)}
+      <label className="setting"><span>DIALOGUE SPEED</span><select value={settings.dialogueSpeed} onChange={e=>updateSettings({...settings,dialogueSpeed:e.target.value as GameSettings["dialogueSpeed"]})}><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option></select></label>
+      <button className="action-button" onClick={()=>updateSettings(defaultSettings)}>RESTORE DEFAULTS</button><p className="muted">Preferences are saved locally on this device.</p>
+    </div></section>}
+    {screen==="load"&&<section className="panel-screen"><button className="back" onClick={goMenu}>← BACK TO TITLE</button><p className="eyebrow">YOUR JOURNEY</p><h2>LOAD GAME</h2><div className="settings-card empty"><div className="empty-glyph">◇</div><h3>No saved journey</h3><p>Save slots will be added as the story and progression systems are built.</p><button className="action-button" onClick={()=>setScreen("game")}>ENTER THE ACADEMY</button></div></section>}
+    {screen==="credits"&&<section className="panel-screen"><button className="back" onClick={goMenu}>← BACK TO TITLE</button><p className="eyebrow">THE PEOPLE BEHIND THE STORY</p><h2>CREDITS</h2><div className="settings-card empty"><h3>THE SCHOOL CHRONICLES</h3><p>Original concept and game direction</p><strong className="credit-name">Vanshu</strong><hr/><p>Built with React, Three.js, React Three Fiber and TypeScript.</p><small>Independent project · Development build 0.2</small></div></section>}
+  </main>;
 }
