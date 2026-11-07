@@ -116,7 +116,14 @@ const BUILDING_COLLIDERS:RectObstacle[] = [
   {x:-29,z:-20,halfX:5.8,halfZ:2.9},
   {x:29,z:14,halfX:5.8,halfZ:2.9},
   {x:-29,z:14,halfX:5.8,halfZ:2.9},
-  {x:29,z:-35,halfX:5.8,halfZ:2.9}
+  {x:29,z:-35,halfX:5.8,halfZ:2.9},
+  {x:-45,z:-34,halfX:5.8,halfZ:2.9},
+  {x:45,z:34,halfX:5.8,halfZ:2.9},
+  {x:0,z:-49,halfX:5.8,halfZ:2.9},
+  {x:0,z:75,halfX:5.8,halfZ:2.9},
+  {x:-65,z:65,halfX:5.8,halfZ:2.9},
+  {x:65,z:-70,halfX:5.8,halfZ:2.9},
+  {x:-65,z:-70,halfX:5.8,halfZ:2.9}
 ];
 function isBlocked(x:number,z:number) {
   const radius=.48;
@@ -228,8 +235,8 @@ function Player({ inside = false, playerPosition, onPositionChange }: { inside?:
     const moving=direction.lengthSq()>.025;
     const speed = running ? 8 : 4.6;
     velocity.current.lerp(direction.multiplyScalar(speed), Math.min(1,dt*10));
-    const nextX=THREE.MathUtils.clamp(group.current.position.x+velocity.current.x*dt,-58,58);
-    const nextZ=THREE.MathUtils.clamp(group.current.position.z+velocity.current.z*dt,-58,58);
+    const nextX=THREE.MathUtils.clamp(group.current.position.x+velocity.current.x*dt,-88,88);
+    const nextZ=THREE.MathUtils.clamp(group.current.position.z+velocity.current.z*dt,-88,88);
     if(!(inside ? isInteriorBlocked(nextX,group.current.position.z) : isBlocked(nextX,group.current.position.z))) group.current.position.x=nextX;
     else velocity.current.x=0;
     if(!(inside ? isInteriorBlocked(group.current.position.x,nextZ) : isBlocked(group.current.position.x,nextZ))) group.current.position.z=nextZ;
@@ -438,7 +445,7 @@ function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInte
     <ambientLight intensity={1.15} />
     <directionalLight position={[-12,18,8]} intensity={2.1} castShadow shadow-mapSize={[1024,1024]} />
     <hemisphereLight args={["#dce9ff","#7b806f",.65]} />
-    <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[240,240]} /><meshStandardMaterial color="#758c78" roughness={1} /></mesh>
+    <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[200,200]} /><meshStandardMaterial color="#758c78" roughness={1} /></mesh>
     <mesh position={[0,-.015,1]} receiveShadow><boxGeometry args={[17,.08,29]} /><meshStandardMaterial color="#c3b7a5" roughness={1} /></mesh>
     <mesh position={[0,.01,5]}><boxGeometry args={[4,.06,22]} /><meshStandardMaterial color="#d6cbb8" /></mesh>
     <AcademyBuilding position={[0,0,-12]} label="HOSHINO ACADEMY" color="#d5d0d7" />
@@ -477,8 +484,8 @@ function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInte
       {[-.9,.9].map(z=><mesh key={z} position={[0,.27,z*.15]}><boxGeometry args={[.14,.55,.14]}/><meshStandardMaterial color="#45444a"/></mesh>)}
     </group>)}
     {/* Boundary walls and planted campus edges */}
-    {[-42,42].map(x=><mesh key={"boundary-x"+x} position={[x,1.1,0]} castShadow><boxGeometry args={[.45,2.2,120]}/><meshStandardMaterial color="#c2b7a8"/></mesh>)}
-    <mesh position={[0,1.1,-60]} castShadow><boxGeometry args={[120,.45,2.2]}/><meshStandardMaterial color="#c2b7a8"/></mesh>
+    {[-90,90].map(x=><mesh key={"boundary-x"+x} position={[x,1.1,0]} castShadow><boxGeometry args={[.45,2.2,180]}/><meshStandardMaterial color="#c2b7a8"/></mesh>)}
+    <mesh position={[0,1.1,-90]} castShadow><boxGeometry args={[180,.45,2.2]}/><meshStandardMaterial color="#c2b7a8"/></mesh>
     {[-36,-28,-20,-12,12,20,28,36].map(x=><CampusShrub key={"edge"+x} position={[x,0,56]} scale={.72}/>)}
     {/* Expanded campus districts */}
     <AcademyBuilding position={[-45,0,-34]} label="SCIENCE BLOCK" color="#c6d2d1" />
@@ -498,6 +505,22 @@ function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInte
     <InteractiveMarker position={[45,0,38]} label="STUDENT CENTRE" onSelect={onInteract} playerPosition={playerPosition}/>
     <InteractiveMarker position={[0,0,-45]} label="PERFORMING ARTS" onSelect={onInteract} playerPosition={playerPosition}/>
     <InteractiveMarker position={[-43,0,34]} label="CAMPUS GARDEN" onSelect={onInteract} playerPosition={playerPosition}/>
+    {/* Outer world districts: unlockable story destinations beyond the academy */}
+    <AcademyBuilding position={[0,0,75]} label="TOWN DISTRICT" color="#d8c9b5"/>
+    <AcademyBuilding position={[-65,0,65]} label="TRAIN STATION" color="#c5d0d4"/>
+    <AcademyBuilding position={[65,0,-70]} label="RESEARCH CENTRE" color="#c6d2d1"/>
+    <AcademyBuilding position={[-65,0,-70]} label="MOUNTAIN SHRINE" color="#cfc5b5"/>
+    <mesh position={[0,.012,61]}><boxGeometry args={[7,.07,36]}/><meshStandardMaterial color="#c5b9a8" roughness={1}/></mesh>
+    <mesh position={[-42,.012,58]}><boxGeometry args={[48,.07,5]}/><meshStandardMaterial color="#c5b9a8" roughness={1}/></mesh>
+    <mesh position={[42,.012,-57]}><boxGeometry args={[48,.07,5]}/><meshStandardMaterial color="#c5b9a8" roughness={1}/></mesh>
+    <mesh position={[-63,.012,-2]}><boxGeometry args={[5,.07,130]}/><meshStandardMaterial color="#c5b9a8" roughness={1}/></mesh>
+    <mesh position={[63,.012,-2]}><boxGeometry args={[5,.07,130]}/><meshStandardMaterial color="#c5b9a8" roughness={1}/></mesh>
+    {[-78,-70,-58,-48,48,58,70,78].map(x=><CampusLamp key={"outer-lamp"+x} position={[x,0,50]}/>)}
+    {[-78,-70,-58,-48,48,58,70,78].map(x=><CampusShrub key={"outer-green"+x} position={[x,0,82]} scale={.72}/>)}
+    <InteractiveMarker position={[0,0,79]} label="TOWN DISTRICT" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[-65,0,69]} label="TRAIN STATION" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[65,0,-66]} label="RESEARCH CENTRE" onSelect={onInteract} playerPosition={playerPosition}/>
+    <InteractiveMarker position={[-65,0,-66]} label="MOUNTAIN SHRINE" onSelect={onInteract} playerPosition={playerPosition}/>
     {/* Main entrance gate */}
     <group position={[0,0,43]}>
       {[-5,5].map(x=><mesh key={x} position={[x,2.8,0]} castShadow><boxGeometry args={[1.2,5.6,1.2]}/><meshStandardMaterial color="#c8b7aa"/></mesh>)}
@@ -539,6 +562,6 @@ function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInte
 }
 
 export function AcademyWorld({ onInteract, interior, gameMinutes, onPositionChange }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number; onPositionChange:(position:{x:number;z:number})=>void }) {
-  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:180}}><World onInteract={onInteract} interior={interior} gameMinutes={gameMinutes} onPositionChange={onPositionChange}/></Canvas>;
+  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:260}}><World onInteract={onInteract} interior={interior} gameMinutes={gameMinutes} onPositionChange={onPositionChange}/></Canvas>;
 }
 
