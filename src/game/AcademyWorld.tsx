@@ -153,10 +153,8 @@ function World({ onInteract }: { onInteract:(label:string)=>void }) {
     <AcademyBuilding position={[-29,0,14]} label="DORMITORY" color="#c9c1d7" />
     <AcademyBuilding position={[29,0,-35]} label="ARTS & CLUBS" color="#d3c5c9" />
     {/* Walkable campus paths connecting the main courtyard to each zone */}
-    <mesh position={[-14,.005,-11]}><boxGeometry args={[3,.045,45]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
-    <mesh position={[14,.005,-11]}><boxGeometry args={[3,.045,45]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
-    <mesh position={[0,.005,-27]}><boxGeometry args={[58,.05,3]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
-    <mesh position={[0,.005,15]}><boxGeometry args={[58,.05,3]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
+    <mesh position={[-21,.005,0]}><boxGeometry args={[3,.045,65]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
+    <mesh position={[21,.005,0]}><boxGeometry args={[3,.045,65]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
     {/* Main entrance gate */}
     <group position={[0,0,43]}>
       {[-5,5].map(x=><mesh key={x} position={[x,2.8,0]} castShadow><boxGeometry args={[1.2,5.6,1.2]}/><meshStandardMaterial color="#c8b7aa"/></mesh>)}
