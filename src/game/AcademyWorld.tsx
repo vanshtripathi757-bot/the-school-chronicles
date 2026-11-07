@@ -50,26 +50,39 @@ function isBlocked(x:number,z:number) {
 function Player({ inside = false }: { inside?: boolean }) {
   const isInteriorBlocked = (x:number,z:number) => Math.abs(x)>10.25 || z < -9.25 || (z>9.25 && Math.abs(x)>3.1);
   const group = useRef<THREE.Group>(null);
+  const torso = useRef<THREE.Group>(null);
+  const leftArm = useRef<THREE.Group>(null);
+  const rightArm = useRef<THREE.Group>(null);
+  const leftLeg = useRef<THREE.Group>(null);
+  const rightLeg = useRef<THREE.Group>(null);
   const initialPosition = useRef(loadPlayerPosition());
   const velocity = useRef(new THREE.Vector3());
+  const verticalVelocity = useRef(0);
+  const grounded = useRef(true);
   const pressed = useRef(new Set<string>());
   const moveStick = useRef({x:0,y:0});
   const cameraDrag = useRef<{pointerId:number;x:number;y:number}|null>(null);
   const cameraOrbit = useRef({yaw:0,pitch:0.42});
+  const actions = useRef({jump:false,run:false});
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
-      if (["KeyW","KeyA","KeyS","KeyD","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","ShiftLeft","ShiftRight"].includes(event.code)) {
+      if (["KeyW","KeyA","KeyS","KeyD","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","ShiftLeft","ShiftRight","Space"].includes(event.code)) {
         event.preventDefault();
         pressed.current.add(event.code);
       }
     };
     const up = (event: KeyboardEvent) => pressed.current.delete(event.code);
-    const clear = () => { pressed.current.clear(); moveStick.current={x:0,y:0}; cameraDrag.current=null; };
+    const clear = () => { pressed.current.clear(); moveStick.current={x:0,y:0}; cameraDrag.current=null; actions.current={jump:false,run:false}; };
     const savePosition = () => { if (group.current) savePlayerPosition({ x: group.current.position.x, z: group.current.position.z }); };
-    const restorePosition = () => { if (!group.current) return; const saved = loadPlayerPosition(); group.current.position.set(saved.x, 0, saved.z); velocity.current.set(0, 0, 0); };
+    const restorePosition = () => { if (!group.current) return; const saved = loadPlayerPosition(); group.current.position.set(saved.x, 0, saved.z); velocity.current.set(0, 0, 0); verticalVelocity.current=0; grounded.current=true; };
     const joystick = (event:Event) => {
       const detail=(event as CustomEvent<{side:"move";x:number;y:number;active:boolean}>).detail;
       if(detail?.side==="move") moveStick.current=detail.active?{x:detail.x,y:detail.y}:{x:0,y:0};
+    };
+    const action = (event:Event) => {
+      const detail=(event as CustomEvent<{action:"jump"|"run";active:boolean}>).detail;
+      if(detail?.action==="jump") actions.current.jump=detail.active;
+      if(detail?.action==="run") actions.current.run=detail.active;
     };
     const pointerDown = (event:PointerEvent) => {
       if(event.pointerType!=="touch" || event.clientX < window.innerWidth*0.45) return;
@@ -90,6 +103,7 @@ function Player({ inside = false }: { inside?: boolean }) {
     window.addEventListener("keyup", up);
     window.addEventListener("blur", clear);
     window.addEventListener("game-joystick",joystick);
+    window.addEventListener("tsc-player-action",action);
     window.addEventListener("tsc-save-position",savePosition);
     window.addEventListener("tsc-load-position",restorePosition);
     window.addEventListener("beforeunload",savePosition);
@@ -102,6 +116,7 @@ function Player({ inside = false }: { inside?: boolean }) {
       window.removeEventListener("keyup", up);
       window.removeEventListener("blur", clear);
       window.removeEventListener("game-joystick",joystick);
+      window.removeEventListener("tsc-player-action",action);
       window.removeEventListener("tsc-save-position",savePosition);
       window.removeEventListener("tsc-load-position",restorePosition);
       window.removeEventListener("beforeunload",savePosition);
@@ -113,48 +128,56 @@ function Player({ inside = false }: { inside?: boolean }) {
   }, []);
   useFrame((state, delta) => {
     if (!group.current) return;
+    const dt=Math.min(delta,.05);
     const keys = pressed.current;
     const right = keys.has("KeyD") || keys.has("ArrowRight");
     const left = keys.has("KeyA") || keys.has("ArrowLeft");
     const forward = keys.has("KeyW") || keys.has("ArrowUp");
     const backward = keys.has("KeyS") || keys.has("ArrowDown");
-    const running = keys.has("ShiftLeft") || keys.has("ShiftRight");
-    // Controls are camera-relative: up = forward, right = screen-right.
+    const running = keys.has("ShiftLeft") || keys.has("ShiftRight") || actions.current.run;
     const localX = Number(right)-Number(left)+moveStick.current.x;
     const localZ = Number(backward)-Number(forward)+moveStick.current.y;
     const yaw = cameraOrbit.current.yaw;
-    const direction = new THREE.Vector3(
-      localX*Math.cos(yaw)+localZ*Math.sin(yaw),
-      0,
-      -localX*Math.sin(yaw)+localZ*Math.cos(yaw)
-    );
-    if (direction.lengthSq() > 0) direction.normalize();
+    const direction = new THREE.Vector3(localX*Math.cos(yaw)+localZ*Math.sin(yaw),0,-localX*Math.sin(yaw)+localZ*Math.cos(yaw));
+    if (direction.lengthSq() > 1) direction.normalize();
+    const moving=direction.lengthSq()>.025;
     const speed = running ? 8 : 4.6;
-    velocity.current.lerp(direction.multiplyScalar(speed), Math.min(1,delta*10));
-    const nextX=THREE.MathUtils.clamp(group.current.position.x+velocity.current.x*delta,-58,58);
-    const nextZ=THREE.MathUtils.clamp(group.current.position.z+velocity.current.z*delta,-58,58);
-    // Resolve axes separately so the player can slide along walls instead of sticking.
+    velocity.current.lerp(direction.multiplyScalar(speed), Math.min(1,dt*10));
+    const nextX=THREE.MathUtils.clamp(group.current.position.x+velocity.current.x*dt,-58,58);
+    const nextZ=THREE.MathUtils.clamp(group.current.position.z+velocity.current.z*dt,-58,58);
     if(!(inside ? isInteriorBlocked(nextX,group.current.position.z) : isBlocked(nextX,group.current.position.z))) group.current.position.x=nextX;
     else velocity.current.x=0;
     if(!(inside ? isInteriorBlocked(group.current.position.x,nextZ) : isBlocked(group.current.position.x,nextZ))) group.current.position.z=nextZ;
     else velocity.current.z=0;
-    if (velocity.current.lengthSq() > .05) group.current.rotation.y = Math.atan2(velocity.current.x,velocity.current.z);
-    const bob = Math.sin(state.clock.elapsedTime*10)*.035*Math.min(1,velocity.current.length());
-    group.current.position.y = Math.abs(bob);
+    if ((keys.has("Space") || actions.current.jump) && grounded.current) { verticalVelocity.current=7.2; grounded.current=false; }
+    verticalVelocity.current-=19*dt;
+    group.current.position.y+=verticalVelocity.current*dt;
+    if(group.current.position.y<=0){group.current.position.y=0;verticalVelocity.current=0;grounded.current=true;}
+    const horizontalSpeed=Math.hypot(velocity.current.x,velocity.current.z);
+    if (horizontalSpeed > .12) group.current.rotation.y = Math.atan2(velocity.current.x,velocity.current.z);
+    const cycle=state.clock.elapsedTime*(running?13:9);
+    const stride=moving?Math.sin(cycle)*Math.min(1,horizontalSpeed/(running?8:4.6)):0;
+    if(leftLeg.current) leftLeg.current.rotation.x=stride*.72;
+    if(rightLeg.current) rightLeg.current.rotation.x=-stride*.72;
+    if(leftArm.current) leftArm.current.rotation.x=-stride*.48;
+    if(rightArm.current) rightArm.current.rotation.x=stride*.48;
+    if(torso.current){torso.current.position.y=moving?Math.abs(Math.sin(cycle*2))*.035:0;torso.current.rotation.z=moving?Math.sin(cycle)*.025:0;}
     const cameraDistance = 9;
-    const desiredCamera = new THREE.Vector3(
-      group.current.position.x + Math.sin(cameraOrbit.current.yaw)*cameraDistance,
-      group.current.position.y + 2.4 + Math.sin(cameraOrbit.current.pitch)*cameraDistance,
-      group.current.position.z + Math.cos(cameraOrbit.current.yaw)*cameraDistance
-    );
-    state.camera.position.lerp(desiredCamera,1-Math.exp(-delta*5));
-    state.camera.lookAt(group.current.position.x,1.35,group.current.position.z-1.8);
+    const desiredCamera = new THREE.Vector3(group.current.position.x + Math.sin(cameraOrbit.current.yaw)*cameraDistance,group.current.position.y + 2.4 + Math.sin(cameraOrbit.current.pitch)*cameraDistance,group.current.position.z + Math.cos(cameraOrbit.current.yaw)*cameraDistance);
+    state.camera.position.lerp(desiredCamera,1-Math.exp(-dt*5));
+    state.camera.lookAt(group.current.position.x,1.35+group.current.position.y,group.current.position.z-1.8);
   });
   return <group ref={group} position={[initialPosition.current.x,0,initialPosition.current.z]}>
-    <mesh position={[0,1.05,0]} castShadow><capsuleGeometry args={[.38,.8,5,10]} /><meshStandardMaterial color="#e9d9e7" roughness={.72} /></mesh>
-    <mesh position={[0,1.95,0]} castShadow><sphereGeometry args={[.34,18,16]} /><meshStandardMaterial color="#f0c8a9" roughness={.8} /></mesh>
-    <mesh position={[0,2.12,.02]} castShadow><sphereGeometry args={[.35,16,10,0,Math.PI*2,0,Math.PI*.55]} /><meshStandardMaterial color="#303047" roughness={.95} /></mesh>
-    <mesh position={[0,.48,0]} castShadow><boxGeometry args={[.72,.18,.42]} /><meshStandardMaterial color="#66557c" /></mesh>
+    <group ref={torso}>
+      <mesh position={[0,1.28,0]} castShadow><capsuleGeometry args={[.34,.72,5,10]}/><meshStandardMaterial color="#e9d9e7" roughness={.72}/></mesh>
+      <mesh position={[0,2.02,0]} castShadow><sphereGeometry args={[.34,18,16]}/><meshStandardMaterial color="#f0c8a9" roughness={.8}/></mesh>
+      <mesh position={[0,2.2,.02]} castShadow><sphereGeometry args={[.35,16,10,0,Math.PI*2,0,Math.PI*.55]}/><meshStandardMaterial color="#303047" roughness={.95}/></mesh>
+      <mesh position={[0,1.68,.02]}><boxGeometry args={[.48,.12,.38]}/><meshStandardMaterial color="#d7b5d5"/></mesh>
+      <group ref={leftArm} position={[-.43,1.58,0]}><mesh position={[0,-.32,0]} castShadow><capsuleGeometry args={[.105,.48,4,7]}/><meshStandardMaterial color="#e9d9e7"/></mesh></group>
+      <group ref={rightArm} position={[.43,1.58,0]}><mesh position={[0,-.32,0]} castShadow><capsuleGeometry args={[.105,.48,4,7]}/><meshStandardMaterial color="#e9d9e7"/></mesh></group>
+      <group ref={leftLeg} position={[-.19,.88,0]}><mesh position={[0,-.34,0]} castShadow><capsuleGeometry args={[.13,.48,4,7]}/><meshStandardMaterial color="#66557c"/></mesh><mesh position={[0,-.61,.1]} castShadow><boxGeometry args={[.25,.13,.42]}/><meshStandardMaterial color="#29283b"/></mesh></group>
+      <group ref={rightLeg} position={[.19,.88,0]}><mesh position={[0,-.34,0]} castShadow><capsuleGeometry args={[.13,.48,4,7]}/><meshStandardMaterial color="#66557c"/></mesh><mesh position={[0,-.61,.1]} castShadow><boxGeometry args={[.25,.13,.42]}/><meshStandardMaterial color="#29283b"/></mesh></group>
+    </group>
   </group>;
 }
 
@@ -163,8 +186,10 @@ function StudentNPC({ name, outfit, start, route, onTalk }: {
   route:[number,number,number][]; onTalk:(label:string)=>void;
 }) {
   const root=useRef<THREE.Group>(null);
+  const leftLeg=useRef<THREE.Group>(null),rightLeg=useRef<THREE.Group>(null);
+  const leftArm=useRef<THREE.Group>(null),rightArm=useRef<THREE.Group>(null);
   const step=useRef(0);
-  const phase=useRef(Math.random()*Math.PI*2);
+  const phase=useRef(0);
   useEffect(()=>{step.current=0;},[route]);
   useFrame((_,delta)=>{
     if(!root.current) return;
@@ -172,20 +197,30 @@ function StudentNPC({ name, outfit, start, route, onTalk }: {
     const dx=target[0]-root.current.position.x;
     const dz=target[2]-root.current.position.z;
     const distance=Math.hypot(dx,dz);
+    let walking=false;
     if(distance<.18) step.current=(step.current+1)%route.length;
     else {
       const speed=1.05;
       root.current.position.x += dx/distance*speed*delta;
       root.current.position.z += dz/distance*speed*delta;
       root.current.rotation.y=Math.atan2(dx,dz);
+      walking=true;
     }
     phase.current += delta*7;
+    const swing=walking?Math.sin(phase.current)*.55:0;
+    if(leftLeg.current) leftLeg.current.rotation.x=swing;
+    if(rightLeg.current) rightLeg.current.rotation.x=-swing;
+    if(leftArm.current) leftArm.current.rotation.x=-swing*.65;
+    if(rightArm.current) rightArm.current.rotation.x=swing*.65;
   });
   return <group ref={root} position={start} onClick={(e)=>{e.stopPropagation();onTalk("TALK: "+name);}}>
     <mesh position={[0,1.05,0]} castShadow><capsuleGeometry args={[.34,.85,5,10]}/><meshStandardMaterial color={outfit} roughness={.78}/></mesh>
     <mesh position={[0,1.95,0]} castShadow><sphereGeometry args={[.31,18,16]}/><meshStandardMaterial color="#edc5a8" roughness={.8}/></mesh>
     <mesh position={[0,2.1,.025]} castShadow><sphereGeometry args={[.32,16,10,0,Math.PI*2,0,Math.PI*.55]}/><meshStandardMaterial color="#343044" roughness={.95}/></mesh>
-    <mesh position={[0,.45,.015]}><boxGeometry args={[.58,.16,.36]}/><meshStandardMaterial color="#343044"/></mesh>
+    <group ref={leftArm} position={[-.4,1.48,0]}><mesh position={[0,-.28,0]} castShadow><capsuleGeometry args={[.09,.42,4,7]}/><meshStandardMaterial color={outfit}/></mesh></group>
+    <group ref={rightArm} position={[.4,1.48,0]}><mesh position={[0,-.28,0]} castShadow><capsuleGeometry args={[.09,.42,4,7]}/><meshStandardMaterial color={outfit}/></mesh></group>
+    <group ref={leftLeg} position={[-.17,.55,0]}><mesh position={[0,-.2,0]} castShadow><capsuleGeometry args={[.12,.36,4,7]}/><meshStandardMaterial color="#343044"/></mesh></group>
+    <group ref={rightLeg} position={[.17,.55,0]}><mesh position={[0,-.2,0]} castShadow><capsuleGeometry args={[.12,.36,4,7]}/><meshStandardMaterial color="#343044"/></mesh></group>
     <Text position={[0,2.55,0]} fontSize={.27} color="#fff0d9" outlineWidth={.02} outlineColor="#201a30" anchorX="center">{name}</Text>
   </group>;
 }
