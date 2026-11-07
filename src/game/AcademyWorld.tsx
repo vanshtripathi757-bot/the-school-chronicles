@@ -47,7 +47,7 @@ function isBlocked(x:number,z:number) {
   return false;
 }
 
-function Player({ inside = false, playerPosition }: { inside?: boolean; playerPosition: { current: THREE.Vector3 } }) {
+function Player({ inside = false, playerPosition, onPositionChange }: { inside?: boolean; playerPosition: { current: THREE.Vector3 }; onPositionChange:(position:{x:number;z:number})=>void }) {
   const isInteriorBlocked = (x:number,z:number) => Math.abs(x)>10.25 || z < -9.25 || (z>9.25 && Math.abs(x)>3.1);
   const group = useRef<THREE.Group>(null);
   const torso = useRef<THREE.Group>(null);
@@ -65,6 +65,7 @@ function Player({ inside = false, playerPosition }: { inside?: boolean; playerPo
   const cameraOrbit = useRef({yaw:0,pitch:0.42});
   const actions = useRef({jump:false,run:false});
   const jumpWasPressed = useRef(false);
+  const positionPublishTimer = useRef(0);
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
       if (["KeyW","KeyA","KeyS","KeyD","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","ShiftLeft","ShiftRight","Space"].includes(event.code)) {
@@ -131,6 +132,8 @@ function Player({ inside = false, playerPosition }: { inside?: boolean; playerPo
     if (!group.current) return;
     playerPosition.current.copy(group.current.position);
     const dt=Math.min(delta,.05);
+    positionPublishTimer.current+=dt;
+    if(positionPublishTimer.current>=.2){positionPublishTimer.current=0;onPositionChange({x:group.current.position.x,z:group.current.position.z});}
     const keys = pressed.current;
     const right = keys.has("KeyD") || keys.has("ArrowRight");
     const left = keys.has("KeyA") || keys.has("ArrowLeft");
@@ -251,7 +254,7 @@ const NPC_ROUTES = {
   mikaLibrary: [[-9,0,19],[12,0,2],[16,0,2]] as [number,number,number][]
 };
 
-function World({ onInteract, interior, gameMinutes }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number }) {
+function World({ onInteract, interior, gameMinutes, onPositionChange }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number; onPositionChange:(position:{x:number;z:number})=>void }) {
   const playerPosition=useRef(new THREE.Vector3());
   if(interior) return <>
     <color attach="background" args={["#1b1b2b"]} />
@@ -277,7 +280,7 @@ function World({ onInteract, interior, gameMinutes }: { onInteract:(label:string
       <mesh position={[0,.62,1.65]}><boxGeometry args={[1.1,.12,.9]}/><meshStandardMaterial color="#735b4e"/></mesh>
     </group>)}
     <InteractiveMarker position={[0,0,8.4]} label="EXIT" onSelect={onInteract} playerPosition={playerPosition}/>
-    <Player inside playerPosition={playerPosition}/>
+    <Player inside playerPosition={playerPosition} onPositionChange={onPositionChange}/>
   </>;
   return <>
     <color attach="background" args={["#a9b9cb"]} />
@@ -336,11 +339,11 @@ function World({ onInteract, interior, gameMinutes }: { onInteract:(label:string
     <InteractiveMarker position={[29,0,-11]} label="SPORTS FIELD" onSelect={onInteract} playerPosition={playerPosition}/>
     <InteractiveMarker position={[0,0,39]} label="MAIN GATE" onSelect={onInteract} playerPosition={playerPosition}/>
     <InteractiveMarker position={[29,0,-28]} label="ARTS & CLUBS" onSelect={onInteract} playerPosition={playerPosition}/>
-    <Player playerPosition={playerPosition}/>
+    <Player playerPosition={playerPosition} onPositionChange={onPositionChange}/>
   </>;
 }
 
-export function AcademyWorld({ onInteract, interior, gameMinutes }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number }) {
-  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:180}}><World onInteract={onInteract} interior={interior} gameMinutes={gameMinutes}/></Canvas>;
+export function AcademyWorld({ onInteract, interior, gameMinutes, onPositionChange }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number; onPositionChange:(position:{x:number;z:number})=>void }) {
+  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:180}}><World onInteract={onInteract} interior={interior} gameMinutes={gameMinutes} onPositionChange={onPositionChange}/></Canvas>;
 }
 
