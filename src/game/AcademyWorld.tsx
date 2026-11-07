@@ -32,7 +32,7 @@ function Player() {
   const velocity = useRef(new THREE.Vector3());
   const pressed = useRef(new Set<string>());
   const moveStick = useRef({x:0,y:0});
-  const lookStick = useRef({x:0,y:0});
+  const cameraDrag = useRef<{pointerId:number;x:number;y:number}|null>(null);
   const cameraOrbit = useRef({yaw:0,pitch:0.42});
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
@@ -42,17 +42,43 @@ function Player() {
       }
     };
     const up = (event: KeyboardEvent) => pressed.current.delete(event.code);
-    const clear = () => { pressed.current.clear(); moveStick.current={x:0,y:0}; lookStick.current={x:0,y:0}; };
-    const joystick = (event:Event) => { const detail=(event as CustomEvent<{side:"move"|"look";x:number;y:number;active:boolean}>).detail; if(!detail)return; const target=detail.side==="move"?moveStick:lookStick; target.current=detail.active?{x:detail.x,y:detail.y}:{x:0,y:0}; };
+    const clear = () => { pressed.current.clear(); moveStick.current={x:0,y:0}; cameraDrag.current=null; };
+    const joystick = (event:Event) => {
+      const detail=(event as CustomEvent<{side:"move";x:number;y:number;active:boolean}>).detail;
+      if(detail?.side==="move") moveStick.current=detail.active?{x:detail.x,y:detail.y}:{x:0,y:0};
+    };
+    const pointerDown = (event:PointerEvent) => {
+      if(event.pointerType!=="touch" || event.clientX < window.innerWidth*0.45) return;
+      const target=event.target as HTMLElement|null;
+      if(target?.closest("button,.interaction-card,.hud-top")) return;
+      cameraDrag.current={pointerId:event.pointerId,x:event.clientX,y:event.clientY};
+    };
+    const pointerMove = (event:PointerEvent) => {
+      const drag=cameraDrag.current;
+      if(!drag || drag.pointerId!==event.pointerId) return;
+      const dx=event.clientX-drag.x, dy=event.clientY-drag.y;
+      drag.x=event.clientX; drag.y=event.clientY;
+      cameraOrbit.current.yaw -= dx*0.006;
+      cameraOrbit.current.pitch=THREE.MathUtils.clamp(cameraOrbit.current.pitch+dy*0.004,0.12,0.9);
+    };
+    const pointerUp = (event:PointerEvent) => { if(cameraDrag.current?.pointerId===event.pointerId) cameraDrag.current=null; };
     window.addEventListener("keydown", down, { passive: false });
     window.addEventListener("keyup", up);
     window.addEventListener("blur", clear);
     window.addEventListener("game-joystick",joystick);
+    window.addEventListener("pointerdown",pointerDown);
+    window.addEventListener("pointermove",pointerMove);
+    window.addEventListener("pointerup",pointerUp);
+    window.addEventListener("pointercancel",pointerUp);
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
       window.removeEventListener("blur", clear);
       window.removeEventListener("game-joystick",joystick);
+      window.removeEventListener("pointerdown",pointerDown);
+      window.removeEventListener("pointermove",pointerMove);
+      window.removeEventListener("pointerup",pointerUp);
+      window.removeEventListener("pointercancel",pointerUp);
     };
   }, []);
   useFrame((state, delta) => {
@@ -66,8 +92,6 @@ function Player() {
     const direction = new THREE.Vector3(Number(right)-Number(left)+moveStick.current.x,0,Number(backward)-Number(forward)-moveStick.current.y);
     if (direction.lengthSq() > 0) direction.normalize();
     const speed = running ? 8 : 4.6;
-    cameraOrbit.current.yaw -= lookStick.current.x * delta * 2.2;
-    cameraOrbit.current.pitch = THREE.MathUtils.clamp(cameraOrbit.current.pitch + lookStick.current.y * delta * 1.5,0.12,0.9);
     velocity.current.lerp(direction.multiplyScalar(speed), Math.min(1,delta*10));
     group.current.position.addScaledVector(velocity.current,delta);
     group.current.position.x = THREE.MathUtils.clamp(group.current.position.x,-58,58);
