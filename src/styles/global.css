@@ -121,4 +121,4 @@
 .story-director-message{color:#b9d9c1!important;font-size:9px!important}
 .story-generate{margin-top:8px;width:100%;text-align:center;background:#473456;border-color:#d1a8e5}
 .story-generate:disabled{opacity:.55;cursor:not-allowed}
-@media(max-width:760px){.story-director-card{left:10px;bottom:92px;width:min(280px,calc(100vw - 20px));max-height:33vh;padding:9px 10px}.story-director-card h3{font-size:12px}.story-director-card p{font-size:9px}}
+@media(max-width:760px){.story-director-card{left:10px;bottom:190px;width:min(280px,calc(100vw - 20px));max-height:26vh;padding:9px 10px}.story-director-card h3{font-size:12px}.story-director-card p{font-size:9px}}
