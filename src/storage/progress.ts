@@ -30,6 +30,6 @@ export function loadPlayerPosition(): PlayerPosition {
     if (!raw) return { x: 0, z: 7 };
     const value = JSON.parse(raw) as Partial<PlayerPosition>;
     if (typeof value.x !== "number" || typeof value.z !== "number") return { x: 0, z: 7 };
-    return { x: Math.max(-58, Math.min(58, value.x)), z: Math.max(-58, Math.min(58, value.z)) };
+    return { x: Math.max(-88, Math.min(88, value.x)), z: Math.max(-88, Math.min(88, value.z)) };
   } catch { return { x: 0, z: 7 }; }
 }
