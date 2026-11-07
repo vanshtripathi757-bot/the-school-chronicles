@@ -45,3 +45,7 @@
 .mobile-action-buttons button small{font-size:7px;letter-spacing:.15em;color:#ead6f4}
 .mobile-action-buttons button:active{background:#9b71b4;transform:scale(.96)}
 @media(max-width:390px){.mobile-action-buttons{right:8px;gap:7px}.mobile-action-buttons button{width:52px;height:52px}}
+
+/* NPC friendship progression */
+.friendship-status{display:block;margin:0 0 8px;color:#e7b9fa;font-size:9px;letter-spacing:.16em}
+.dialogue-choices button span{margin-left:8px;color:#e7b9fa;font-weight:700}
