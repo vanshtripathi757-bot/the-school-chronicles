@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { canGenerateStory, loadStoryDirector, saveStoryDirector, type StoryDirectorState, type StoryPack } from "../storage/storyDirector";
 
 type Props = { experience: number; completedMissions: number; onReward: (amount: number) => void };
@@ -7,9 +7,11 @@ export default function StoryDirectorPanel({ experience, completedMissions, onRe
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [selection, setSelection] = useState<number | null>(null);
+  const generationLock = useRef(false);
 
   const generate = async (automatic = false) => {
-    if (busy || (!automatic && !canGenerateStory(state))) return;
+    if (generationLock.current || (!automatic && !canGenerateStory(state))) return;
+    generationLock.current = true;
     setBusy(true);
     setMessage("Gemini is preparing the next chapter activity…");
     try {
@@ -30,7 +32,7 @@ export default function StoryDirectorPanel({ experience, completedMissions, onRe
       setMessage("A new activity is ready. It will unlock as your journey progresses.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Story Director is temporarily unavailable.");
-    } finally { setBusy(false); }
+    } finally { generationLock.current = false; setBusy(false); }
   };
 
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function StoryDirectorPanel({ experience, completedMissions, onRe
       <small>LOCATION · {current.location}</small>
       <strong className="story-question">{current.question}</strong>
       <div className="story-options">{current.options.map((option,index)=><button key={index} className={selection===index?"selected":""} onClick={()=>setSelection(index)}>{String.fromCharCode(65+index)}. {option}</button>)}</div>
-      {selection!==null && <div className="story-feedback">{selection===current.correctOption ? "Correct. " : "Not quite. "}{current.explanation}<button onClick={()=>complete(current,true)}>SUBMIT ANSWER</button></div>}
+      {selection!==null && <div className="story-feedback">{selection===current.correctOption ? "Correct. " : "Not quite. "}{current.explanation}<button onClick={()=>complete(current,selection===current.correctOption)}>SUBMIT ANSWER</button></div>}
       <button className="story-complete" onClick={()=>complete(current,false)}>COMPLETE STORY SCENE</button>
     </> : nextLocked ? <><h3>{nextLocked.title}</h3><p>{nextLocked.summary}</p><div className="story-lock">LOCKED · UNLOCKS AT {nextLocked.unlockAtXp} XP</div></> :
       <><h3>Your next adventure is being prepared</h3><p>New quizzes, tests, school events and story missions arrive gradually. Complete activities to unlock them.</p></>}
