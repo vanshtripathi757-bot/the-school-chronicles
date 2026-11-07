@@ -31,7 +31,9 @@ function Player() {
   const group = useRef<THREE.Group>(null);
   const velocity = useRef(new THREE.Vector3());
   const pressed = useRef(new Set<string>());
-  const cameraOffset = useRef(new THREE.Vector3(0,5.5,8.8));
+  const moveStick = useRef({x:0,y:0});
+  const lookStick = useRef({x:0,y:0});
+  const cameraOrbit = useRef({yaw:0,pitch:0.42});
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
       if (["KeyW","KeyA","KeyS","KeyD","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","ShiftLeft","ShiftRight"].includes(event.code)) {
@@ -40,14 +42,17 @@ function Player() {
       }
     };
     const up = (event: KeyboardEvent) => pressed.current.delete(event.code);
-    const clear = () => pressed.current.clear();
+    const clear = () => { pressed.current.clear(); moveStick.current={x:0,y:0}; lookStick.current={x:0,y:0}; };
+    const joystick = (event:Event) => { const detail=(event as CustomEvent<{side:"move"|"look";x:number;y:number;active:boolean}>).detail; if(!detail)return; const target=detail.side==="move"?moveStick:lookStick; target.current=detail.active?{x:detail.x,y:detail.y}:{x:0,y:0}; };
     window.addEventListener("keydown", down, { passive: false });
     window.addEventListener("keyup", up);
     window.addEventListener("blur", clear);
+    window.addEventListener("game-joystick",joystick);
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
       window.removeEventListener("blur", clear);
+      window.removeEventListener("game-joystick",joystick);
     };
   }, []);
   useFrame((state, delta) => {
@@ -58,9 +63,11 @@ function Player() {
     const forward = keys.has("KeyW") || keys.has("ArrowUp");
     const backward = keys.has("KeyS") || keys.has("ArrowDown");
     const running = keys.has("ShiftLeft") || keys.has("ShiftRight");
-    const direction = new THREE.Vector3(Number(right)-Number(left),0,Number(backward)-Number(forward));
+    const direction = new THREE.Vector3(Number(right)-Number(left)+moveStick.current.x,0,Number(backward)-Number(forward)-moveStick.current.y);
     if (direction.lengthSq() > 0) direction.normalize();
     const speed = running ? 8 : 4.6;
+    cameraOrbit.current.yaw -= lookStick.current.x * delta * 2.2;
+    cameraOrbit.current.pitch = THREE.MathUtils.clamp(cameraOrbit.current.pitch + lookStick.current.y * delta * 1.5,0.12,0.9);
     velocity.current.lerp(direction.multiplyScalar(speed), Math.min(1,delta*10));
     group.current.position.addScaledVector(velocity.current,delta);
     group.current.position.x = THREE.MathUtils.clamp(group.current.position.x,-58,58);
@@ -68,10 +75,11 @@ function Player() {
     if (velocity.current.lengthSq() > .05) group.current.rotation.y = Math.atan2(velocity.current.x,velocity.current.z);
     const bob = Math.sin(state.clock.elapsedTime*10)*.035*Math.min(1,velocity.current.length());
     group.current.position.y = Math.abs(bob);
+    const cameraDistance = 9;
     const desiredCamera = new THREE.Vector3(
-      group.current.position.x + cameraOffset.current.x,
-      group.current.position.y + cameraOffset.current.y,
-      group.current.position.z + cameraOffset.current.z
+      group.current.position.x + Math.sin(cameraOrbit.current.yaw)*cameraDistance,
+      group.current.position.y + 2.4 + Math.sin(cameraOrbit.current.pitch)*cameraDistance,
+      group.current.position.z + Math.cos(cameraOrbit.current.yaw)*cameraDistance
     );
     state.camera.position.lerp(desiredCamera,1-Math.exp(-delta*5));
     state.camera.lookAt(group.current.position.x,1.35,group.current.position.z-1.8);
