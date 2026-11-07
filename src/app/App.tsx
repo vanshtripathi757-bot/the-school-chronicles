@@ -3,7 +3,7 @@ import { AcademyWorld } from "../game/AcademyWorld";
 import VirtualJoystick from "../components/ui/VirtualJoystick";
 import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "../storage/settings";
 import { loadGame, saveGame } from "../storage/progress";
-import { increaseFriendship, loadFriendships, saveFriendships, type FriendshipMap } from "../storage/relationships";
+import { increaseFriendship, loadFriendships, resetFriendships, saveFriendships, type FriendshipMap } from "../storage/relationships";
 
 type Screen = "menu" | "game" | "settings" | "credits" | "load";
 function playerAction(action:"jump"|"run",active:boolean){window.dispatchEvent(new CustomEvent("tsc-player-action",{detail:{action,active}}));}
@@ -27,7 +27,7 @@ export default function App() {
   const [gameMinutes,setGameMinutes]=useState<number>(()=>loadGame()?.gameMinutes??465);
   const persistGame=()=>{window.dispatchEvent(new Event("tsc-save-position"));const saved=saveGame(interior,gameMinutes);setSavedAt(saved.savedAt);setNotice("Journey saved on this device.");};
   const resumeGame=()=>{const saved=loadGame();if(!saved){setNotice("No saved journey yet. Start a new game first.");return;}setInterior(saved.interior);setGameMinutes(saved.gameMinutes);setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));setSavedAt(saved.savedAt);};
-  const startNewGame=()=>{localStorage.removeItem("tsc-player-position-v1");localStorage.removeItem("tsc-save-v1");setSavedAt(null);setGameMinutes(465);setInterior(null);setInteraction("");setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));};
+  const startNewGame=()=>{localStorage.removeItem("tsc-player-position-v1");localStorage.removeItem("tsc-save-v1");setSavedAt(null);setGameMinutes(465);setInterior(null);setInteraction("");setDialogue("");setFriendships(resetFriendships());setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));};
   const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
   useEffect(()=>{if(screen!=="game")return;const timer=window.setInterval(()=>setGameMinutes(value=>(value+1)%1440),1000);return()=>window.clearInterval(timer);},[screen]);
   const formatGameTime=(minutes:number)=>{const hour=Math.floor(minutes/60)%24;const minute=minutes%60;return `${String(hour%12||12).padStart(2,"0")}:${String(minute).padStart(2,"0")} ${hour>=12?"PM":"AM"}`;};
