@@ -38,3 +38,10 @@
 @media(max-width:760px){.npc-dialogue p{font-size:11px}.dialogue-choices button{font-size:9px;padding:7px 8px}}
 
 .hud-actions{display:flex;gap:8px;align-items:center}.hud-actions button{border:1px solid #e4c8f077;background:#171326bb;color:#fff;padding:10px 14px;font-size:9px;letter-spacing:.15em}.hud-actions button span{margin-left:8px;color:#e4bafa}@media(max-width:760px){.hud-actions{gap:5px}.hud-actions button{padding:8px 9px;font-size:8px}}
+
+/* Mobile movement actions */
+.mobile-action-buttons{position:absolute;right:18px;bottom:0;display:flex;gap:10px;pointer-events:auto}
+.mobile-action-buttons button{width:58px;height:58px;border:1px solid rgba(236,210,249,.7);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:radial-gradient(circle at 35% 25%,#765c91dd,#171326eF 72%);box-shadow:0 5px 18px #0008;color:#fff;font-size:23px;font-weight:700;touch-action:none;user-select:none;-webkit-user-select:none}
+.mobile-action-buttons button small{font-size:7px;letter-spacing:.15em;color:#ead6f4}
+.mobile-action-buttons button:active{background:#9b71b4;transform:scale(.96)}
+@media(max-width:390px){.mobile-action-buttons{right:8px;gap:7px}.mobile-action-buttons button{width:52px;height:52px}}
