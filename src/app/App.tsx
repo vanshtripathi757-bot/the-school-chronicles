@@ -51,7 +51,7 @@ export default function App() {
         <button onClick={()=>setInteraction("")}>CLOSE</button></div>}
       <div className="controls-help"><span>W A S D <small>MOVE</small></span><span>SHIFT <small>RUN</small></span><span>CLICK GLOWING MARKERS <small>INTERACT</small></span></div>
       <div className="joystick-controls"><VirtualJoystick side="move" label="MOVE"/><div className="camera-drag-hint">DRAG TO LOOK</div></div>
-      <div className="game-footer"><span>DAY 01</span><span>MONDAY · HOMEROOM<span>ACADEMY LIFE SIMULATION</span></div>
+      <div className="game-footer"><span>DAY 01</span><span>MONDAY · HOMEROOM <span>ACADEMY LIFE SIMULATION</span></span></div>
       {notice&&<div className="toast">{notice}<button onClick={()=>setNotice("")}>×</button></div>}
     </section>}
     {screen==="settings"&&<section className="panel-screen"><button className="back" onClick={goMenu}>← BACK TO TITLE</button><p className="eyebrow">PREFERENCES</p><h2>SETTINGS</h2><div className="settings-card">
