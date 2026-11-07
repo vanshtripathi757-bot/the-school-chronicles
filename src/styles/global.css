@@ -36,3 +36,5 @@
 .dialogue-choices button{padding:8px 10px;border:1px solid #d4b3e477;border-radius:5px;background:#322540;color:#f6eafa;font-size:10px}
 .dialogue-choices button:active{background:#614579}
 @media(max-width:760px){.npc-dialogue p{font-size:11px}.dialogue-choices button{font-size:9px;padding:7px 8px}}
+
+.hud-actions{display:flex;gap:8px;align-items:center}.hud-actions button{border:1px solid #e4c8f077;background:#171326bb;color:#fff;padding:10px 14px;font-size:9px;letter-spacing:.15em}.hud-actions button span{margin-left:8px;color:#e4bafa}@media(max-width:760px){.hud-actions{gap:5px}.hud-actions button{padding:8px 9px;font-size:8px}}
