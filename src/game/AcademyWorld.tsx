@@ -148,6 +148,37 @@ function Player({ inside = false }: { inside?: boolean }) {
   </group>;
 }
 
+function StudentNPC({ name, role, outfit, start, route, onTalk }: {
+  name:string; role:string; outfit:string; start:[number,number,number];
+  route:[number,number,number][]; onTalk:(label:string)=>void;
+}) {
+  const root=useRef<THREE.Group>(null);
+  const step=useRef(0);
+  const phase=useRef(Math.random()*Math.PI*2);
+  useFrame((state,delta)=>{
+    if(!root.current) return;
+    const target=route[step.current];
+    const dx=target[0]-root.current.position.x;
+    const dz=target[2]-root.current.position.z;
+    const distance=Math.hypot(dx,dz);
+    if(distance<.18) step.current=(step.current+1)%route.length;
+    else {
+      const speed=1.05;
+      root.current.position.x += dx/distance*speed*delta;
+      root.current.position.z += dz/distance*speed*delta;
+      root.current.rotation.y=Math.atan2(dx,dz);
+    }
+    phase.current += delta*7;
+  });
+  return <group ref={root} position={start} onClick={(e)=>{e.stopPropagation();onTalk("TALK: "+name);}}>
+    <mesh position={[0,1.05,0]} castShadow><capsuleGeometry args={[.34,.85,5,10]}/><meshStandardMaterial color={outfit} roughness={.78}/></mesh>
+    <mesh position={[0,1.95,0]} castShadow><sphereGeometry args={[.31,18,16]}/><meshStandardMaterial color="#edc5a8" roughness={.8}/></mesh>
+    <mesh position={[0,2.1,.025]} castShadow><sphereGeometry args={[.32,16,10,0,Math.PI*2,0,Math.PI*.55]}/><meshStandardMaterial color="#343044" roughness={.95}/></mesh>
+    <mesh position={[0,.45,.015]}><boxGeometry args={[.58,.16,.36]}/><meshStandardMaterial color="#343044"/></mesh>
+    <Text position={[0,2.55,0]} fontSize={.27} color="#fff0d9" outlineWidth={.02} outlineColor="#201a30" anchorX="center">{name}</Text>
+  </group>;
+}
+
 function InteractiveMarker({ position, label, onSelect }: { position:[number,number,number]; label:string; onSelect:(label:string)=>void }) {
   return <group position={position} onClick={(e)=>{e.stopPropagation();onSelect(label);}}>
     <Float speed={1.4} rotationIntensity={.08} floatIntensity={.18}>
@@ -223,6 +254,9 @@ function World({ onInteract, interior }: { onInteract:(label:string)=>void; inte
     <mesh position={[0,.9,-5]}><cylinderGeometry args={[.08,.08,.8,12]} /><meshStandardMaterial color="#d5e7ee" /></mesh>
     {[-9,-6,6,9].map((x)=>[-10,-3,5,12].map((z)=><Tree key={x+"-"+z} position={[x,0,z]} scale={.8+(Math.abs(x+z)%3)*.12}/>))}
     {[-3,3].map((x)=><group key={x} position={[x,0,3]}><mesh position={[0,.55,0]} castShadow><boxGeometry args={[2.4,.18,.7]} /><meshStandardMaterial color="#795b50" /></mesh><mesh position={[-.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh><mesh position={[.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh></group>)}
+    <StudentNPC name="Aiko" role="Class Representative" outfit="#6c789f" start={[-3,0,15]} route={[[-3,0,15],[3,0,15],[3,0,23],[-3,0,23]]} onTalk={onInteract}/>
+    <StudentNPC name="Ren" role="Sports Club" outfit="#9a6d78" start={[6,0,19]} route={[[6,0,19],[10,0,19],[10,0,26],[6,0,26]]} onTalk={onInteract}/>
+    <StudentNPC name="Mika" role="Library Assistant" outfit="#648b7d" start={[-9,0,19]} route={[[-9,0,19],[-6,0,19],[-6,0,25],[-9,0,25]]} onTalk={onInteract}/>
     <InteractiveMarker position={[0,0,-8.2]} label="ACADEMY ENTRANCE" onSelect={onInteract}/>
     <InteractiveMarker position={[-12,0,2.7]} label="LIBRARY DOOR" onSelect={onInteract}/>
     <InteractiveMarker position={[12,0,2.7]} label="CLASSROOM DOOR" onSelect={onInteract}/>
