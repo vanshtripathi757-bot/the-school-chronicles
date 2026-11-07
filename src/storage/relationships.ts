@@ -43,3 +43,9 @@ export function increaseFriendship(
     [name]: Math.max(0, Math.min(100, (friendships[name] ?? 0) + amount))
   };
 }
+
+export function resetFriendships(): FriendshipMap {
+  const empty = Object.fromEntries(DEFAULT_FRIENDS.map((name) => [name, 0]));
+  saveFriendships(empty);
+  return empty;
+}
