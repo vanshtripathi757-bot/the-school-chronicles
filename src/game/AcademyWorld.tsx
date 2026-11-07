@@ -199,7 +199,7 @@ function InteractiveMarker({ position, label, onSelect }: { position:[number,num
   </group>;
 }
 
-function World({ onInteract, interior }: { onInteract:(label:string)=>void; interior:string|null }) {
+function World({ onInteract, interior, gameMinutes }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number }) {
   if(interior) return <>
     <color attach="background" args={["#1b1b2b"]} />
     <fog attach="fog" args={["#1b1b2b",24,48]} />
@@ -264,9 +264,9 @@ function World({ onInteract, interior }: { onInteract:(label:string)=>void; inte
     <mesh position={[0,.9,-5]}><cylinderGeometry args={[.08,.08,.8,12]} /><meshStandardMaterial color="#d5e7ee" /></mesh>
     {[-9,-6,6,9].map((x)=>[-10,-3,5,12].map((z)=><Tree key={x+"-"+z} position={[x,0,z]} scale={.8+(Math.abs(x+z)%3)*.12}/>))}
     {[-3,3].map((x)=><group key={x} position={[x,0,3]}><mesh position={[0,.55,0]} castShadow><boxGeometry args={[2.4,.18,.7]} /><meshStandardMaterial color="#795b50" /></mesh><mesh position={[-.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh><mesh position={[.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh></group>)}
-    <StudentNPC name="Aiko" outfit="#6c789f" start={[-3,0,15]} route={[[-3,0,15],[3,0,15],[3,0,23],[-3,0,23]]} onTalk={onInteract}/>
-    <StudentNPC name="Ren" outfit="#9a6d78" start={[6,0,19]} route={[[6,0,19],[10,0,19],[10,0,26],[6,0,26]]} onTalk={onInteract}/>
-    <StudentNPC name="Mika" outfit="#648b7d" start={[-9,0,19]} route={[[-9,0,19],[-6,0,19],[-6,0,25],[-9,0,25]]} onTalk={onInteract}/>
+    <StudentNPC name="Aiko" outfit="#6c789f" start={[-3,0,15]} route={gameMinutes>=660&&gameMinutes<780?[[-3,0,15],[-29,0,-13],[-25,0,-13]]:gameMinutes>=780&&gameMinutes<900?[[-3,0,15],[12,0,2],[16,0,2]]:[[-3,0,15],[3,0,15],[3,0,23],[-3,0,23]]} onTalk={onInteract}/>
+    <StudentNPC name="Ren" outfit="#9a6d78" start={[6,0,19]} route={gameMinutes>=840?[[6,0,19],[29,0,-10],[34,0,-10]]:gameMinutes>=720?[[6,0,19],[29,0,22],[34,0,22]]:[[6,0,19],[10,0,19],[10,0,26],[6,0,26]]} onTalk={onInteract}/>
+    <StudentNPC name="Mika" outfit="#648b7d" start={[-9,0,19]} route={gameMinutes>=780&&gameMinutes<900?[[-9,0,19],[-29,0,-13],[-25,0,-13]]:gameMinutes>=540&&gameMinutes<660?[[-9,0,19],[12,0,2],[16,0,2]]:[[-9,0,19],[-6,0,19],[-6,0,25],[-9,0,25]]} onTalk={onInteract}/>
     <InteractiveMarker position={[0,0,-8.2]} label="ACADEMY ENTRANCE" onSelect={onInteract}/>
     <InteractiveMarker position={[-12,0,2.7]} label="LIBRARY DOOR" onSelect={onInteract}/>
     <InteractiveMarker position={[12,0,2.7]} label="CLASSROOM DOOR" onSelect={onInteract}/>
@@ -287,7 +287,7 @@ function World({ onInteract, interior }: { onInteract:(label:string)=>void; inte
   </>;
 }
 
-export function AcademyWorld({ onInteract, interior }: { onInteract:(label:string)=>void; interior:string|null }) {
-  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:180}}><World onInteract={onInteract} interior={interior}/></Canvas>;
+export function AcademyWorld({ onInteract, interior, gameMinutes }: { onInteract:(label:string)=>void; interior:string|null; gameMinutes:number }) {
+  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:180}}><World onInteract={onInteract} interior={interior} gameMinutes={gameMinutes}/></Canvas>;
 }
 
