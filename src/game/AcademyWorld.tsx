@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { KeyboardControls } from "@react-three/drei";
 import { Float, Text, useKeyboardControls } from "@react-three/drei";
