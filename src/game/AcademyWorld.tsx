@@ -147,6 +147,29 @@ function World({ onInteract }: { onInteract:(label:string)=>void }) {
     <AcademyBuilding position={[0,0,-12]} label="HOSHINO ACADEMY" color="#d5d0d7" />
     <AcademyBuilding position={[-12,0,-1]} label="LIBRARY" color="#c7c5d0" />
     <AcademyBuilding position={[12,0,-1]} label="CLASSROOMS" color="#d4c8c1" />
+    {/* Connected campus wings */}
+    <AcademyBuilding position={[-29,0,-20]} label="CAFETERIA" color="#d6c4ad" />
+    <AcademyBuilding position={[29,0,14]} label="GYMNASIUM" color="#c5d0d4" />
+    <AcademyBuilding position={[-29,0,14]} label="DORMITORY" color="#c9c1d7" />
+    <AcademyBuilding position={[29,0,-35]} label="ARTS & CLUBS" color="#d3c5c9" />
+    {/* Walkable campus paths connecting the main courtyard to each zone */}
+    <mesh position={[-14,.005,-11]}><boxGeometry args={[3,.045,45]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
+    <mesh position={[14,.005,-11]}><boxGeometry args={[3,.045,45]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
+    <mesh position={[0,.005,-27]}><boxGeometry args={[58,.05,3]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
+    <mesh position={[0,.005,15]}><boxGeometry args={[58,.05,3]} /><meshStandardMaterial color="#c3b7a5" roughness={1}/></mesh>
+    {/* Main entrance gate */}
+    <group position={[0,0,43]}>
+      {[-5,5].map(x=><mesh key={x} position={[x,2.8,0]} castShadow><boxGeometry args={[1.2,5.6,1.2]}/><meshStandardMaterial color="#c8b7aa"/></mesh>)}
+      <mesh position={[0,5.35,0]} castShadow><boxGeometry args={[11.5,.8,1.4]}/><meshStandardMaterial color="#49425d"/></mesh>
+      <Text position={[0,5.45,.76]} fontSize={.48} color="#f6e8d2" anchorX="center">HOSHINO ACADEMY</Text>
+    </group>
+    {/* Outdoor sports field */}
+    <group position={[29,0,-22]}>
+      <mesh position={[0,.015,0]} receiveShadow><boxGeometry args={[24,.06,17]}/><meshStandardMaterial color="#4f805f" roughness={1}/></mesh>
+      <mesh position={[0,.055,0]}><boxGeometry args={[.12,.025,15]}/><meshBasicMaterial color="#e8eadb"/></mesh>
+      <mesh position={[0,.055,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[2.4,2.52,32]}/><meshBasicMaterial color="#e8eadb" side={THREE.DoubleSide}/></mesh>
+      {[-10,10].map(x=><mesh key={x} position={[x,1,0]}><boxGeometry args={[.18,2,.18]}/><meshStandardMaterial color="#f1eee3"/></mesh>)}
+    </group>
     <mesh position={[0,.16,-5]} castShadow><cylinderGeometry args={[2.1,2.1,.32,32]} /><meshStandardMaterial color="#b4a9a5" /></mesh>
     <mesh position={[0,.48,-5]}><cylinderGeometry args={[1.55,1.55,.35,32]} /><meshStandardMaterial color="#83b7c5" metalness={0.1} roughness={0.22} /></mesh>
     <mesh position={[0,.9,-5]}><cylinderGeometry args={[.08,.08,.8,12]} /><meshStandardMaterial color="#d5e7ee" /></mesh>
@@ -155,6 +178,12 @@ function World({ onInteract }: { onInteract:(label:string)=>void }) {
     <InteractiveMarker position={[-12,0,2]} label="LIBRARY" onSelect={onInteract}/>
     <InteractiveMarker position={[12,0,2]} label="CLASSROOMS" onSelect={onInteract}/>
     <InteractiveMarker position={[0,0,-5]} label="FOUNTAIN" onSelect={onInteract}/>
+    <InteractiveMarker position={[-29,0,-12]} label="CAFETERIA" onSelect={onInteract}/>
+    <InteractiveMarker position={[29,0,22]} label="GYMNASIUM" onSelect={onInteract}/>
+    <InteractiveMarker position={[-29,0,22]} label="DORMITORY" onSelect={onInteract}/>
+    <InteractiveMarker position={[29,0,-11]} label="SPORTS FIELD" onSelect={onInteract}/>
+    <InteractiveMarker position={[0,0,39]} label="MAIN GATE" onSelect={onInteract}/>
+    <InteractiveMarker position={[29,0,-28]} label="ARTS & CLUBS" onSelect={onInteract}/>
     <Player />
   </>;
 }
