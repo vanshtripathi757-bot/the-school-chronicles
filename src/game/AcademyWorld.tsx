@@ -8,6 +8,7 @@ import { loadPlayerPosition, savePlayerPosition } from "../storage/progress";
 
 function AcademyBuilding({ position, label, color = "#d8d0c4" }: { position: [number,number,number]; label: string; color?: string }) {
   const glass="#6e9eae", trim="#f2e5ce", roof="#343744", wood="#72564a";
+  const isLibrary=label.includes("LIBRARY"), isGym=label.includes("GYM"), isCafe=label.includes("CAFETERIA"), isDorm=label.includes("DORMITORY"), isArts=label.includes("ARTS");
   return <group position={position}>
     {/* raised stone foundation and front approach */}
     <mesh position={[0,.22,0]} castShadow receiveShadow><boxGeometry args={[12.2,.44,6.2]}/><meshStandardMaterial color="#77716b" roughness={.94}/></mesh>
@@ -50,6 +51,36 @@ function AcademyBuilding({ position, label, color = "#d8d0c4" }: { position: [nu
     </group>)}
     <mesh position={[-5.64,1.35,.2]}><boxGeometry args={[.12,.9,1.2]}/><meshStandardMaterial color="#a9b8ad"/></mesh>
     <mesh position={[5.64,1.35,.2]}><boxGeometry args={[.12,.9,1.2]}/><meshStandardMaterial color="#a9b8ad"/></mesh>
+    {/* Distinct identity for each campus building */}
+    {isLibrary && <group position={[-4.6,0,3.15]}>
+      <mesh position={[0,4.35,0]} castShadow><boxGeometry args={[2.25,2.5,.38]}/><meshStandardMaterial color="#c2b4a4"/></mesh>
+      <mesh position={[0,4.38,.23]}><boxGeometry args={[1.75,1.9,.08]}/><meshStandardMaterial color="#526d78"/></mesh>
+      <mesh position={[0,4.4,.3]}><boxGeometry args={[.08,1.8,.04]}/><meshStandardMaterial color="#eadfc9"/></mesh>
+      <mesh position={[0,4.4,.3]}><boxGeometry args={[1.7,.08,.04]}/><meshStandardMaterial color="#eadfc9"/></mesh>
+    </group>}
+    {isGym && <group position={[0,4.25,3.05]}>
+      <mesh castShadow><cylinderGeometry args={[.82,.82,.18,32]}/><meshStandardMaterial color="#e4d9c5"/></mesh>
+      <mesh position={[0,0,.12]}><cylinderGeometry args={[.63,.63,.08,32]}/><meshStandardMaterial color="#536f7b"/></mesh>
+      <mesh position={[0,0,.18]}><ringGeometry args={[.25,.34,24]}/><meshBasicMaterial color="#f4e8d2" side={THREE.DoubleSide}/></mesh>
+    </group>}
+    {isCafe && <group position={[0,3.2,3.35]}>
+      <mesh castShadow><boxGeometry args={[8.6,.18,1.35]}/><meshStandardMaterial color="#f0e2ca"/></mesh>
+      {Array.from({length:9},(_,i)=><mesh key={i} position={[-3.8+i*.95,-.12,.03]}><boxGeometry args={[.45,.08,1.28]}/><meshStandardMaterial color={i%2?"#a65f58":"#f4e7d2"}/></mesh>)}
+      {[-3.7,3.7].map(x=><mesh key={x} position={[x,-1.5,.05]}><cylinderGeometry args={[.07,.07,3,8]}/><meshStandardMaterial color="#64554a"/></mesh>)}
+    </group>}
+    {isDorm && <group position={[0,0,3.16]}>
+      {[2.2,4.8].map(y=><group key={y}>
+        <mesh position={[0,y,0]}><boxGeometry args={[9.2,.12,.8]}/><meshStandardMaterial color="#8a7666"/></mesh>
+        <mesh position={[0,y+.5,.36]}><boxGeometry args={[9.2,.08,.08]}/><meshStandardMaterial color="#d9c9b2"/></mesh>
+        {Array.from({length:12},(_,i)=><mesh key={i} position={[-4.4+i*.8,y+.25,.36]}><cylinderGeometry args={[.025,.025,.5,6]}/><meshStandardMaterial color="#d9c9b2"/></mesh>)}
+      </group>)}
+    </group>}
+    {isArts && <group position={[0,4.1,3.05]}>
+      {[-2.5,0,2.5].map((x,i)=><group key={x} position={[x,0,0}>
+        <mesh><boxGeometry args={[1.35,.85,.08]}/><meshStandardMaterial color={["#9c6685","#527f83","#b48b58"][i]}/></mesh>
+        <mesh position={[0,-.62,.02]} rotation={[0,0,Math.PI]}><coneGeometry args={[.68,.65,3]}/><meshStandardMaterial color={["#9c6685","#527f83","#b48b58"][i]}/></mesh>
+      </group>)}
+    </group>}
   </group>;
 }
 function Tree({ position, scale = 1 }: { position: [number,number,number]; scale?: number }) {
