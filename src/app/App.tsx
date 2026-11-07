@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AcademyWorld } from "../game/AcademyWorld";
 import VirtualJoystick from "../components/ui/VirtualJoystick";
 import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "../storage/settings";
+import { loadGame, saveGame } from "../storage/progress";
 
 type Screen = "menu" | "game" | "settings" | "credits" | "load";
 export default function App() {
@@ -11,6 +12,9 @@ export default function App() {
   const [interaction,setInteraction]=useState("");
   const [interior,setInterior]=useState<string|null>(null);
   const [dialogue,setDialogue]=useState("");
+  const [savedAt,setSavedAt]=useState<number|null>(()=>loadGame()?.savedAt??null);
+  const persistGame=()=>{window.dispatchEvent(new Event("tsc-save-position"));const saved=saveGame(interior);setSavedAt(saved.savedAt);setNotice("Journey saved on this device.");};
+  const resumeGame=()=>{const saved=loadGame();if(!saved){setNotice("No saved journey yet. Start a new game first.");return;}setInterior(saved.interior);setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));setSavedAt(saved.savedAt);};
   const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
   const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");setInterior(null);setDialogue("");};
   return <main className="game-root">
@@ -20,7 +24,7 @@ export default function App() {
       <div className="title-copy"><div className="crest">✦ HOSHINO ACADEMY ✦</div><h1>THE SCHOOL<br/><em>CHRONICLES</em></h1><p>YOUR DAYS. YOUR CHOICES. YOUR STORY.</p><div className="title-rule"/></div>
       <nav className="main-menu" aria-label="Main menu">
         <button className="primary" onClick={()=>{setScreen("game");setNotice("");}}> <span>01</span> NEW GAME <b>↗</b></button>
-        <button onClick={()=>setNotice("No saved journey yet. Start a new game to explore the academy.")}><span>02</span> CONTINUE <b>◇</b></button>
+        <button onClick={resumeGame}><span>02</span> CONTINUE <b>◇</b></button>
         <button onClick={()=>setScreen("load")}><span>03</span> LOAD GAME <b>▤</b></button>
         <button onClick={()=>setScreen("settings")}><span>04</span> SETTINGS <b>⚙</b></button>
         <button onClick={()=>setScreen("credits")}><span>05</span> CREDITS <b>✧</b></button>
@@ -30,7 +34,7 @@ export default function App() {
       <div className="world-hint">LIVE 3D ACADEMY ENVIRONMENT</div>
     </section>}
     {screen==="game"&&<section className="game-hud">
-      <header className="hud-top"><div className="brand-mark">SC <span>THE SCHOOL CHRONICLES</span></div><div className="hud-location">HOSHINO ACADEMY <i>•</i> MAIN COURTYARD</div><button onClick={goMenu}>PAUSE / MENU <span>Ⅱ</span></button></header>
+      <header className="hud-top"><div className="brand-mark">SC <span>THE SCHOOL CHRONICLES</span></div><div className="hud-location">HOSHINO ACADEMY <i>•</i> MAIN COURTYARD</div><div className="hud-actions"><button onClick={persistGame}>SAVE <span>◇</span></button><button onClick={()=>{persistGame();goMenu();}}>PAUSE / MENU <span>Ⅱ</span></button></div></header>
       <div className="objective"><small>YOUR FIRST DAY · 08:00 AM</small><strong>Explore the academy</strong><span>Homeroom → Mathematics → Science → Break</span></div>
       {(interaction||interior)&&<div className="interaction-card"><small>{interior?"BUILDING INTERIOR":"YOU DISCOVERED"}</small><strong>{interior??interaction}</strong><p>{({LIBRARY:"A quiet place filled with books and stories.",CLASSROOMS:"The heart of academy life. Classes begin here.",FOUNTAIN:"A peaceful fountain in the centre of campus.",CAFETERIA:"Meet friends and take a break between classes.",GYMNASIUM:"The indoor sports and fitness centre.",DORMITORY:"Student residence and common rooms.", "SPORTS FIELD":"Outdoor grounds for games and school tournaments.","MAIN GATE":"The main entrance to Hoshino Academy.","ARTS & CLUBS":"Creative studios and after-school club rooms.","ACADEMY ENTRANCE":"Main entrance. The inside area is being prepared.","LIBRARY DOOR":"Library entrance found. Interior access is being built.","CLASSROOM DOOR":"Classroom wing entrance found. Interior access is being built.","CAFETERIA DOOR":"Cafeteria entrance found. Interior access is being built.","GYM DOOR":"Gymnasium entrance found. Interior access is being built.","DORMITORY DOOR":"Dormitory entrance found. Interior access is being built.","CLUB DOOR":"Club wing entrance found. Interior access is being built."} as Record<string,string>)[interaction] ?? "Explore this part of the academy."}</p>{interaction.startsWith("TALK: ")&&<div className="npc-dialogue">
           <p>{dialogue || "A student from Hoshino Academy is ready to chat."}</p>
@@ -55,7 +59,7 @@ export default function App() {
       <label className="setting"><span>DIALOGUE SPEED</span><select value={settings.dialogueSpeed} onChange={e=>updateSettings({...settings,dialogueSpeed:e.target.value as GameSettings["dialogueSpeed"]})}><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option></select></label>
       <button className="action-button" onClick={()=>updateSettings(defaultSettings)}>RESTORE DEFAULTS</button><p className="muted">Preferences are saved locally on this device.</p>
     </div></section>}
-    {screen==="load"&&<section className="panel-screen"><button className="back" onClick={goMenu}>← BACK TO TITLE</button><p className="eyebrow">YOUR JOURNEY</p><h2>LOAD GAME</h2><div className="settings-card empty"><div className="empty-glyph">◇</div><h3>No saved journey</h3><p>Save slots will be added as the story and progression systems are built.</p><button className="action-button" onClick={()=>setScreen("game")}>ENTER THE ACADEMY</button></div></section>}
+    {screen==="load"&&<section className="panel-screen"><button className="back" onClick={goMenu}>← BACK TO TITLE</button><p className="eyebrow">YOUR JOURNEY</p><h2>LOAD GAME</h2><div className="settings-card empty"><div className="empty-glyph">◇</div>{savedAt?<><h3>Journey found</h3><p>Last saved: {new Date(savedAt).toLocaleString()}</p><button className="action-button" onClick={resumeGame}>LOAD JOURNEY</button></>:<><h3>No saved journey</h3><p>Start exploring, then use SAVE to store your campus location on this device.</p><button className="action-button" onClick={()=>setScreen("game")}>ENTER THE ACADEMY</button></>}</div></section>}
     {screen==="credits"&&<section className="panel-screen"><button className="back" onClick={goMenu}>← BACK TO TITLE</button><p className="eyebrow">THE PEOPLE BEHIND THE STORY</p><h2>CREDITS</h2><div className="settings-card empty"><h3>THE SCHOOL CHRONICLES</h3><p>Original concept and game direction</p><strong className="credit-name">Vanshu</strong><hr/><p>Built with React, Three.js, React Three Fiber and TypeScript.</p><small>Independent project · Development build 0.2</small></div></section>}
   </main>;
 }
