@@ -1,17 +1,9 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { KeyboardControls } from "@react-three/drei";
-import { Float, Text, useKeyboardControls } from "@react-three/drei";
+import { Float, Text } from "@react-three/drei";
 import * as THREE from "three";
 
-type Control = "forward" | "backward" | "left" | "right" | "run";
-const controlMap = [
-  { name: "forward" as Control, keys: ["ArrowUp", "KeyW"] },
-  { name: "backward" as Control, keys: ["ArrowDown", "KeyS"] },
-  { name: "left" as Control, keys: ["ArrowLeft", "KeyA"] },
-  { name: "right" as Control, keys: ["ArrowRight", "KeyD"] },
-  { name: "run" as Control, keys: ["ShiftLeft", "ShiftRight"] }
-];
+
 
 function AcademyBuilding({ position, label, color = "#c9c5d6" }: { position: [number,number,number]; label: string; color?: string }) {
   return <group position={position}>
@@ -38,24 +30,51 @@ function Tree({ position, scale = 1 }: { position: [number,number,number]; scale
 function Player() {
   const group = useRef<THREE.Group>(null);
   const velocity = useRef(new THREE.Vector3());
-  const [, get] = useKeyboardControls<Control>();
-  const cameraTarget = useRef(new THREE.Vector3());
+  const pressed = useRef(new Set<string>());
+  const cameraOffset = useRef(new THREE.Vector3(0,5.5,8.8));
+  useEffect(() => {
+    const down = (event: KeyboardEvent) => {
+      if (["KeyW","KeyA","KeyS","KeyD","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","ShiftLeft","ShiftRight"].includes(event.code)) {
+        event.preventDefault();
+        pressed.current.add(event.code);
+      }
+    };
+    const up = (event: KeyboardEvent) => pressed.current.delete(event.code);
+    const clear = () => pressed.current.clear();
+    window.addEventListener("keydown", down, { passive: false });
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", clear);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", clear);
+    };
+  }, []);
   useFrame((state, delta) => {
     if (!group.current) return;
-    const input = get();
-    const direction = new THREE.Vector3(Number(input.right)-Number(input.left),0,Number(input.backward)-Number(input.forward));
+    const keys = pressed.current;
+    const right = keys.has("KeyD") || keys.has("ArrowRight");
+    const left = keys.has("KeyA") || keys.has("ArrowLeft");
+    const forward = keys.has("KeyW") || keys.has("ArrowUp");
+    const backward = keys.has("KeyS") || keys.has("ArrowDown");
+    const running = keys.has("ShiftLeft") || keys.has("ShiftRight");
+    const direction = new THREE.Vector3(Number(right)-Number(left),0,Number(backward)-Number(forward));
     if (direction.lengthSq() > 0) direction.normalize();
-    const speed = input.run ? 6.8 : 3.8;
+    const speed = running ? 8 : 4.6;
     velocity.current.lerp(direction.multiplyScalar(speed), Math.min(1,delta*10));
     group.current.position.addScaledVector(velocity.current,delta);
-    group.current.position.x = THREE.MathUtils.clamp(group.current.position.x,-16,16);
-    group.current.position.z = THREE.MathUtils.clamp(group.current.position.z,-13,17);
+    group.current.position.x = THREE.MathUtils.clamp(group.current.position.x,-58,58);
+    group.current.position.z = THREE.MathUtils.clamp(group.current.position.z,-58,58);
     if (velocity.current.lengthSq() > .05) group.current.rotation.y = Math.atan2(velocity.current.x,velocity.current.z);
     const bob = Math.sin(state.clock.elapsedTime*10)*.035*Math.min(1,velocity.current.length());
     group.current.position.y = Math.abs(bob);
-    cameraTarget.current.set(group.current.position.x,group.current.position.y+2.8,group.current.position.z+7);
-    state.camera.position.lerp(new THREE.Vector3(group.current.position.x,5.5,group.current.position.z+8.8),1-Math.exp(-delta*3.2));
-    state.camera.lookAt(group.current.position.x,1.25,group.current.position.z-1.8);
+    const desiredCamera = new THREE.Vector3(
+      group.current.position.x + cameraOffset.current.x,
+      group.current.position.y + cameraOffset.current.y,
+      group.current.position.z + cameraOffset.current.z
+    );
+    state.camera.position.lerp(desiredCamera,1-Math.exp(-delta*5));
+    state.camera.lookAt(group.current.position.x,1.35,group.current.position.z-1.8);
   });
   return <group ref={group} position={[0,0,7]}>
     <mesh position={[0,1.05,0]} castShadow><capsuleGeometry args={[.38,.8,5,10]} /><meshStandardMaterial color="#e9d9e7" roughness={.72} /></mesh>
@@ -82,7 +101,7 @@ function World({ onInteract }: { onInteract:(label:string)=>void }) {
     <ambientLight intensity={1.15} />
     <directionalLight position={[-12,18,8]} intensity={2.1} castShadow shadow-mapSize={[1024,1024]} />
     <hemisphereLight args={["#dce9ff","#7b806f",.65]} />
-    <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[100,100]} /><meshStandardMaterial color="#758c78" roughness={1} /></mesh>
+    <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[200,200]} /><meshStandardMaterial color="#758c78" roughness={1} /></mesh>
     <mesh position={[0,-.015,1]} receiveShadow><boxGeometry args={[17,.08,29]} /><meshStandardMaterial color="#c3b7a5" roughness={1} /></mesh>
     <mesh position={[0,.01,5]}><boxGeometry args={[4,.06,22]} /><meshStandardMaterial color="#d6cbb8" /></mesh>
     <AcademyBuilding position={[0,0,-12]} label="HOSHINO ACADEMY" color="#d5d0d7" />
@@ -101,9 +120,6 @@ function World({ onInteract }: { onInteract:(label:string)=>void }) {
 }
 
 export function AcademyWorld({ onInteract }: { onInteract:(label:string)=>void }) {
-  return <KeyboardControls map={controlMap}><Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:100}}>
-    <World onInteract={onInteract}/>
-  </Canvas></KeyboardControls>;
+  return <Canvas shadows dpr={[1,1.5]} camera={{position:[0,6,16],fov:52,near:.1,far:180}}><World onInteract={onInteract}/></Canvas>;
 }
 
-export { controlMap };
