@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AcademyWorld } from "../game/AcademyWorld";
 import VirtualJoystick from "../components/ui/VirtualJoystick";
 import { defaultSettings, loadSettings, saveSettings, type GameSettings } from "../storage/settings";
@@ -27,6 +27,7 @@ export default function App() {
     if(missionId) setMissions((current)=>{if(current[missionId])return current;const updated=completeMission(current,missionId);saveMissions(updated);setProgression((value)=>{const earned=awardExperience(value,50);saveProgression(earned);return earned;});return updated;});
   };
   const [savedAt,setSavedAt]=useState<number|null>(()=>loadGame()?.savedAt??null);
+  const saveSnapshotRef=useRef<()=>void>(()=>{});
   const chooseDialogue=(name:string,message:string)=>{
     setDialogue(message);
     setFriendships((current)=>{
@@ -37,10 +38,12 @@ export default function App() {
   };
   const [gameMinutes,setGameMinutes]=useState<number>(()=>loadGame()?.gameMinutes??465);
   const persistGame=()=>{window.dispatchEvent(new Event("tsc-save-position"));const saved=saveGame(interior,gameMinutes);setSavedAt(saved.savedAt);setNotice("Journey saved on this device.");};
+  saveSnapshotRef.current=()=>{window.dispatchEvent(new Event("tsc-save-position"));const saved=saveGame(interior,gameMinutes);setSavedAt(saved.savedAt);};
   const resumeGame=()=>{const saved=loadGame();if(!saved){setNotice("No saved journey yet. Start a new game first.");return;}setInterior(saved.interior);setGameMinutes(saved.gameMinutes);setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));setSavedAt(saved.savedAt);};
   const startNewGame=()=>{localStorage.removeItem("tsc-player-position-v1");localStorage.removeItem("tsc-save-v1");setSavedAt(null);setGameMinutes(465);setInterior(null);setInteraction("");setDialogue("");setFriendships(resetFriendships());setMissions(resetMissions());setProgression(resetProgression());setScreen("game");setNotice("");window.dispatchEvent(new Event("tsc-load-position"));};
   const updateSettings=(next:GameSettings)=>{setSettings(next);saveSettings(next);};
   useEffect(()=>{if(screen!=="game")return;const timer=window.setInterval(()=>setGameMinutes(value=>(value+1)%1440),1000);return()=>window.clearInterval(timer);},[screen]);
+  useEffect(()=>{if(screen!=="game")return;saveSnapshotRef.current();const autosave=window.setInterval(()=>saveSnapshotRef.current(),3000);const saveOnExit=()=>saveSnapshotRef.current();const saveWhenHidden=()=>{if(document.visibilityState==="hidden")saveSnapshotRef.current();};window.addEventListener("pagehide",saveOnExit);document.addEventListener("visibilitychange",saveWhenHidden);return()=>{window.clearInterval(autosave);window.removeEventListener("pagehide",saveOnExit);document.removeEventListener("visibilitychange",saveWhenHidden);saveSnapshotRef.current();};},[screen]);
   const formatGameTime=(minutes:number)=>{const hour=Math.floor(minutes/60)%24;const minute=minutes%60;return `${String(hour%12||12).padStart(2,"0")}:${String(minute).padStart(2,"0")} ${hour>=12?"PM":"AM"}`;};
   const schedule=[{at:480,end:540,name:"Homeroom",place:"Classrooms"},{at:540,end:600,name:"Mathematics",place:"Classrooms"},{at:600,end:660,name:"Science",place:"Classrooms"},{at:660,end:720,name:"Morning break",place:"Courtyard"},{at:720,end:780,name:"Lunch",place:"Cafeteria"},{at:780,end:840,name:"English",place:"Classrooms"},{at:840,end:900,name:"Clubs & activities",place:"Arts & Clubs"},{at:900,end:960,name:"Free time",place:"Campus"}];
   const currentPeriod=schedule.find(item=>gameMinutes>=item.at&&gameMinutes<item.end)??(gameMinutes<480?{name:"Before classes",place:"Courtyard"}:{name:"School day finished",place:"Campus"});
