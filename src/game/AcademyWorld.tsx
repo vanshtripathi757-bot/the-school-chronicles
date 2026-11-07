@@ -89,7 +89,7 @@ function World({ onInteract }: { onInteract:(label:string)=>void }) {
     <AcademyBuilding position={[-12,0,-1]} label="LIBRARY" color="#c7c5d0" />
     <AcademyBuilding position={[12,0,-1]} label="CLASSROOMS" color="#d4c8c1" />
     <mesh position={[0,.16,-5]} castShadow><cylinderGeometry args={[2.1,2.1,.32,32]} /><meshStandardMaterial color="#b4a9a5" /></mesh>
-    <mesh position={[0,.48,-5]}><cylinderGeometry args={[1.55,1.55,.35,32]} /><meshStandardMaterial color="#83b7c5" metalness:.1 roughness:.22 /></mesh>
+    <mesh position={[0,.48,-5]}><cylinderGeometry args={[1.55,1.55,.35,32]} /><meshStandardMaterial color="#83b7c5" metalness={0.1} roughness={0.22} /></mesh>
     <mesh position={[0,.9,-5]}><cylinderGeometry args={[.08,.08,.8,12]} /><meshStandardMaterial color="#d5e7ee" /></mesh>
     {[-9,-6,6,9].map((x)=>[-10,-3,5,12].map((z)=><Tree key={x+"-"+z} position={[x,0,z]} scale={.8+(Math.abs(x+z)%3)*.12}/>))}
     {[-3,3].map((x)=><group key={x} position={[x,0,3]}><mesh position={[0,.55,0]} castShadow><boxGeometry args={[2.4,.18,.7]} /><meshStandardMaterial color="#795b50" /></mesh><mesh position={[-.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh><mesh position={[.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh></group>)}
