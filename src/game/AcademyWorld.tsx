@@ -64,6 +64,7 @@ function Player({ inside = false }: { inside?: boolean }) {
   const cameraDrag = useRef<{pointerId:number;x:number;y:number}|null>(null);
   const cameraOrbit = useRef({yaw:0,pitch:0.42});
   const actions = useRef({jump:false,run:false});
+  const jumpWasPressed = useRef(false);
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
       if (["KeyW","KeyA","KeyS","KeyD","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","ShiftLeft","ShiftRight","Space"].includes(event.code)) {
@@ -149,7 +150,9 @@ function Player({ inside = false }: { inside?: boolean }) {
     else velocity.current.x=0;
     if(!(inside ? isInteriorBlocked(group.current.position.x,nextZ) : isBlocked(group.current.position.x,nextZ))) group.current.position.z=nextZ;
     else velocity.current.z=0;
-    if ((keys.has("Space") || actions.current.jump) && grounded.current) { verticalVelocity.current=7.2; grounded.current=false; }
+    const jumpPressed=keys.has("Space") || actions.current.jump;
+    if (jumpPressed && !jumpWasPressed.current && grounded.current) { verticalVelocity.current=7.2; grounded.current=false; }
+    jumpWasPressed.current=jumpPressed;
     verticalVelocity.current-=19*dt;
     group.current.position.y+=verticalVelocity.current*dt;
     if(group.current.position.y<=0){group.current.position.y=0;verticalVelocity.current=0;grounded.current=true;}
