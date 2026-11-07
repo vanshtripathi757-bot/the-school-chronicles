@@ -149,7 +149,7 @@ function Player({ inside = false }: { inside?: boolean }) {
 }
 
 function StudentNPC({ name, role, outfit, start, route, onTalk }: {
-  name:string; role:string; outfit:string; start:[number,number,number];
+  name:string; outfit:string; start:[number,number,number];
   route:[number,number,number][]; onTalk:(label:string)=>void;
 }) {
   const root=useRef<THREE.Group>(null);
@@ -254,9 +254,9 @@ function World({ onInteract, interior }: { onInteract:(label:string)=>void; inte
     <mesh position={[0,.9,-5]}><cylinderGeometry args={[.08,.08,.8,12]} /><meshStandardMaterial color="#d5e7ee" /></mesh>
     {[-9,-6,6,9].map((x)=>[-10,-3,5,12].map((z)=><Tree key={x+"-"+z} position={[x,0,z]} scale={.8+(Math.abs(x+z)%3)*.12}/>))}
     {[-3,3].map((x)=><group key={x} position={[x,0,3]}><mesh position={[0,.55,0]} castShadow><boxGeometry args={[2.4,.18,.7]} /><meshStandardMaterial color="#795b50" /></mesh><mesh position={[-.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh><mesh position={[.85,.28,0]}><boxGeometry args={[.12,.55,.6]} /><meshStandardMaterial color="#4c4544" /></mesh></group>)}
-    <StudentNPC name="Aiko" role="Class Representative" outfit="#6c789f" start={[-3,0,15]} route={[[-3,0,15],[3,0,15],[3,0,23],[-3,0,23]]} onTalk={onInteract}/>
-    <StudentNPC name="Ren" role="Sports Club" outfit="#9a6d78" start={[6,0,19]} route={[[6,0,19],[10,0,19],[10,0,26],[6,0,26]]} onTalk={onInteract}/>
-    <StudentNPC name="Mika" role="Library Assistant" outfit="#648b7d" start={[-9,0,19]} route={[[-9,0,19],[-6,0,19],[-6,0,25],[-9,0,25]]} onTalk={onInteract}/>
+    <StudentNPC name="Aiko" outfit="#6c789f" start={[-3,0,15]} route={[[-3,0,15],[3,0,15],[3,0,23],[-3,0,23]]} onTalk={onInteract}/>
+    <StudentNPC name="Ren" outfit="#9a6d78" start={[6,0,19]} route={[[6,0,19],[10,0,19],[10,0,26],[6,0,26]]} onTalk={onInteract}/>
+    <StudentNPC name="Mika" outfit="#648b7d" start={[-9,0,19]} route={[[-9,0,19],[-6,0,19],[-6,0,25],[-9,0,25]]} onTalk={onInteract}/>
     <InteractiveMarker position={[0,0,-8.2]} label="ACADEMY ENTRANCE" onSelect={onInteract}/>
     <InteractiveMarker position={[-12,0,2.7]} label="LIBRARY DOOR" onSelect={onInteract}/>
     <InteractiveMarker position={[12,0,2.7]} label="CLASSROOM DOOR" onSelect={onInteract}/>
