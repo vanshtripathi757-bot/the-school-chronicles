@@ -24,7 +24,7 @@ export default function App() {
   const currentPeriod=schedule.find(item=>gameMinutes>=item.at&&gameMinutes<item.end)??(gameMinutes<480?{name:"Before classes",place:"Courtyard"}:{name:"School day finished",place:"Campus"});
   const goMenu=()=>{setScreen("menu");setNotice("");setInteraction("");setInterior(null);setDialogue("");};
   return <main className="game-root">
-    {(screen==="menu"||screen==="game")&&<div className="world-layer"><AcademyWorld onInteract={setInteraction} interior={interior}/></div>}
+    {(screen==="menu"||screen==="game")&&<div className="world-layer"><AcademyWorld onInteract={setInteraction} interior={interior} gameMinutes={gameMinutes}/></div>}
     {screen==="menu"&&<section className="title-screen">
       <div className="title-topline"><span>AN ORIGINAL ANIME SCHOOL-LIFE ADVENTURE</span><span>EARLY ACCESS · BUILD 0.2</span></div>
       <div className="title-copy"><div className="crest">✦ HOSHINO ACADEMY ✦</div><h1>THE SCHOOL<br/><em>CHRONICLES</em></h1><p>YOUR DAYS. YOUR CHOICES. YOUR STORY.</p><div className="title-rule"/></div>
